@@ -11,7 +11,7 @@
 `grib2io-interp` is the spatial interpolation component for [grib2io](https://github.com/NOAA-MDL/grib2io).  This package provides a Python interface to the [NCEPLIBS-ip](https://github.com/NOAA-EMC/NCEPLIBS-ip) Fortran Library and contains a single NumPy/F2PY extension module.  Originally, it was a part of the grib2io package, but since it requires NumPy's distutil's `Extension` and `setup` to build and install, it needs to be handled separately from the other grib2io source that are using `setuptools`.
 
 ## Documentation
-[NOAA-MDL/grib2io](https://noaa-mdl.github.io/grib2io-interp/grib2io-interp.html)
+[NOAA-MDL/grib2io-interp](https://noaa-mdl.github.io/grib2io-interp/grib2io-interp.html)
 
 ## Required Software
 * [Python](https://python.org) 3.8+
