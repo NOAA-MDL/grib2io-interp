@@ -32,7 +32,6 @@ jobs:
         make -j2
         sudo make install
         export G2C_DIR=/usr/local
-        export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
     - name: Install python dependencies via pip
       run: |
@@ -66,6 +65,7 @@ jobs:
         python -m pip install grib2io==2.0.0rc1
         export SP_DIR=/usr/local
         export IP_DIR=/usr/local
+        export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
         python --version
         python -m pip install .
         python -c "import grib2io; print(grib2io)"
