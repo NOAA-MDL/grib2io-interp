@@ -39,6 +39,7 @@ jobs:
         python -m pip install --upgrade setuptools
         python -m pip install --upgrade wheel
         python -m pip install $(grep numpy requirements.txt)
+        python -m pip install pytest
         
     - name: Install NCEPLIBS-sp
       run: |
@@ -66,7 +67,5 @@ jobs:
         export SP_DIR=/usr/local
         export IP_DIR=/usr/local
         export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-        python --version
         python -m pip install .
-        python -c "import grib2io; print(grib2io)"
-        python -c "import grib2io_interp; print(grib2io_interp)"
+        pytest
