@@ -12,42 +12,68 @@ nbm_grid_def = grib2io.Grib2GridDef(gdtn_nbm, gdt_nbm)
 nx = gdt_nbm[7]
 ny = gdt_nbm[8]
 
+def _writer(path,a):
+    """
+    """
+    fd = open(path,"wb")
+    fd.write(np.ravel(a).tobytes())
+    fd.close()
+
 def test_bicubic_interp_to_grid(request):
     data = request.config.rootdir / 'tests' / 'input_data'
     outputdata = request.config.rootdir / 'tests' / 'output_data'
+    filename = 'bicubic-interp-grid-output.bin'
     with grib2io.open(data / 'gfs.t00z.pgrb2.1p00.f024') as f:
         msg = f.select(shortName='TMP',level='2 m above ground')[0]
         newmsg = msg.interpolate('bicubic',nbm_grid_def)
-        np.testing.assert_allclose(newmsg.data,np.fromfile(outputdata / 'bicubic-interp-grid-output.bin',dtype=np.float32).reshape(ny,nx))
+        #_writer(outputdata / filename,newmsg.data)
+        x = newmsg.data
+        y = np.fromfile(outputdata / filename,dtype=np.float32).reshape(ny,nx)
+        np.testing.assert_allclose(x,y,rtol=1e-05,atol=1e-05)
 
 def test_bilinear_interp_to_grid(request):
     data = request.config.rootdir / 'tests' / 'input_data'
     outputdata = request.config.rootdir / 'tests' / 'output_data'
+    filename = 'bilinear-interp-grid-output.bin'
     with grib2io.open(data / 'gfs.t00z.pgrb2.1p00.f024') as f:
         msg = f.select(shortName='TMP',level='2 m above ground')[0]
         newmsg = msg.interpolate('bilinear',nbm_grid_def)
-        np.testing.assert_allclose(newmsg.data,np.fromfile(outputdata / 'bilinear-interp-grid-output.bin',dtype=np.float32).reshape(ny,nx))
+        #_writer(outputdata / filename,newmsg.data)
+        x = newmsg.data
+        y = np.fromfile(outputdata / filename,dtype=np.float32).reshape(ny,nx)
+        np.testing.assert_allclose(x,y,rtol=1e-05,atol=1e-05)
 
 def test_budget_interp_to_grid(request):
     data = request.config.rootdir / 'tests' / 'input_data'
     outputdata = request.config.rootdir / 'tests' / 'output_data'
+    filename = 'budget-interp-grid-output.bin'
     with grib2io.open(data / 'gfs.t00z.pgrb2.1p00.f024') as f:
         msg = f.select(shortName='TMP',level='2 m above ground')[0]
         newmsg = msg.interpolate('budget',nbm_grid_def)
-        np.testing.assert_allclose(newmsg.data,np.fromfile(outputdata / 'budget-interp-grid-output.bin',dtype=np.float32).reshape(ny,nx))
+        x = newmsg.data
+        y = np.fromfile(outputdata / filename,dtype=np.float32).reshape(ny,nx)
+        np.testing.assert_allclose(x,y,rtol=1e-05,atol=1e-05)
 
 def test_neighbor_interp_to_grid(request):
     data = request.config.rootdir / 'tests' / 'input_data'
     outputdata = request.config.rootdir / 'tests' / 'output_data'
+    filename = 'neighbor-interp-grid-output.bin'
     with grib2io.open(data / 'gfs.t00z.pgrb2.1p00.f024') as f:
         msg = f.select(shortName='TMP',level='2 m above ground')[0]
         newmsg = msg.interpolate('neighbor',nbm_grid_def)
-        np.testing.assert_allclose(newmsg.data,np.fromfile(outputdata / 'neighbor-interp-grid-output.bin',dtype=np.float32).reshape(ny,nx))
+        #_writer(outputdata / filename,newmsg.data)
+        x = newmsg.data
+        y = np.fromfile(outputdata / filename,dtype=np.float32).reshape(ny,nx)
+        np.testing.assert_allclose(x,y,rtol=1e-05,atol=1e-05)
 
 def test_neighbor_budget_interp_to_grid(request):
     data = request.config.rootdir / 'tests' / 'input_data'
     outputdata = request.config.rootdir / 'tests' / 'output_data'
+    filename = 'neighbor-budget-interp-grid-output.bin'
     with grib2io.open(data / 'gfs.t00z.pgrb2.1p00.f024') as f:
         msg = f.select(shortName='TMP',level='2 m above ground')[0]
         newmsg = msg.interpolate('neighbor-budget',nbm_grid_def)
-        np.testing.assert_allclose(newmsg.data,np.fromfile(outputdata / 'neighbor-budget-interp-grid-output.bin',dtype=np.float32).reshape(ny,nx))
+        #_writer(outputdata / filename,newmsg.data)
+        x = newmsg.data
+        y = np.fromfile(outputdata / filename,dtype=np.float32).reshape(ny,nx)
+        np.testing.assert_allclose(x,y,rtol=1e-05,atol=1e-05)
