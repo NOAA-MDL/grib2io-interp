@@ -5,4 +5,4 @@
 sysarch=$(uname -m)
 build_dir=$(find . -name "lib.*${sysarch}*" -type d)
 echo "Building docs from: $build_dir"
-pdoc -o 'docs' $build_dir/grib2io_interp
+pdoc -o 'docs' $build_dir/grib2io_interp !grib2io_interp.interpolate
