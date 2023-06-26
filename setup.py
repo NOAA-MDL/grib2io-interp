@@ -104,6 +104,13 @@ finally:
     a.close()
 
 # ----------------------------------------------------------------------------------------
+# Import README.md as PyPi long_description
+# ----------------------------------------------------------------------------------------
+this_directory = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
+
+# ----------------------------------------------------------------------------------------
 # Run setup
 # ----------------------------------------------------------------------------------------
 setup(name              = 'grib2io_interp',
@@ -126,4 +133,6 @@ setup(name              = 'grib2io_interp',
                            'Topic :: Software Development :: Libraries :: Python Modules'],
       packages          = ["grib2io_interp"],
       package_dir       = {'': 'src'},
-      ext_modules       = [interpext])
+      ext_modules       = [interpext],
+      long_description  = long_description,
+      long_description_content_type = 'text/markdown')
