@@ -5,7 +5,7 @@
 [![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/)
 [![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/release/python-3100/)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
-[![PyPI version](https://badge.fury.io/py/grib2io.svg)](https://badge.fury.io/py/grib2io-interp)
+[![PyPI version](https://badge.fury.io/py/grib2io-interp.svg)](https://badge.fury.io/py/grib2io-interp)
 
 # Introduction
 `grib2io-interp` is the spatial interpolation component for [grib2io](https://github.com/NOAA-MDL/grib2io).  This package provides a Python interface to the [NCEPLIBS-ip](https://github.com/NOAA-EMC/NCEPLIBS-ip) Fortran Library and contains a single NumPy/F2PY extension module.  Originally, it was a part of the grib2io package, but since it requires NumPy's distutil's `Extension` and `setup` to build and install, it needs to be handled separately from the other grib2io source that are using `setuptools`.
