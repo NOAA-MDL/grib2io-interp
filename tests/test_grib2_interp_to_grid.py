@@ -8,9 +8,12 @@ gdtn_nbm = 30
 gdt_nbm = [1, 0, 6371200, 255, 255, 255, 255, 1173, 799, 19229000, 233723400,
            48, 25000000, 265000000, 5079406, 5079406, 0, 64, 25000000,
            25000000, -90000000, 0]
+
 nbm_grid_def = grib2io.Grib2GridDef(gdtn_nbm, gdt_nbm)
 nx = gdt_nbm[7]
 ny = gdt_nbm[8]
+
+rtol = 1e-04
 
 def _writer(path,a):
     """
@@ -29,7 +32,7 @@ def test_bicubic_interp_to_grid(request):
         #_writer(outputdata / filename,newmsg.data)
         x = newmsg.data
         y = np.fromfile(outputdata / filename,dtype=np.float32).reshape(ny,nx)
-        np.testing.assert_allclose(x,y,rtol=1e-02,atol=1e-02)
+        np.testing.assert_allclose(x,y,rtol=rtol)
 
 def test_bilinear_interp_to_grid(request):
     data = request.config.rootdir / 'tests' / 'input_data'
@@ -41,7 +44,7 @@ def test_bilinear_interp_to_grid(request):
         #_writer(outputdata / filename,newmsg.data)
         x = newmsg.data
         y = np.fromfile(outputdata / filename,dtype=np.float32).reshape(ny,nx)
-        np.testing.assert_allclose(x,y,rtol=1e-02,atol=1e-02)
+        np.testing.assert_allclose(x,y,rtol=rtol)
 
 def test_budget_interp_to_grid(request):
     data = request.config.rootdir / 'tests' / 'input_data'
@@ -52,7 +55,7 @@ def test_budget_interp_to_grid(request):
         newmsg = msg.interpolate('budget',nbm_grid_def)
         x = newmsg.data
         y = np.fromfile(outputdata / filename,dtype=np.float32).reshape(ny,nx)
-        np.testing.assert_allclose(x,y,rtol=1e-02,atol=1e-02)
+        np.testing.assert_allclose(x,y,rtol=rtol)
 
 def test_neighbor_interp_to_grid(request):
     data = request.config.rootdir / 'tests' / 'input_data'
@@ -64,7 +67,7 @@ def test_neighbor_interp_to_grid(request):
         #_writer(outputdata / filename,newmsg.data)
         x = newmsg.data
         y = np.fromfile(outputdata / filename,dtype=np.float32).reshape(ny,nx)
-        np.testing.assert_allclose(x,y,rtol=1e-02,atol=1e-02)
+        np.testing.assert_allclose(x,y,rtol=rtol)
 
 def test_neighbor_budget_interp_to_grid(request):
     data = request.config.rootdir / 'tests' / 'input_data'
@@ -76,4 +79,4 @@ def test_neighbor_budget_interp_to_grid(request):
         #_writer(outputdata / filename,newmsg.data)
         x = newmsg.data
         y = np.fromfile(outputdata / filename,dtype=np.float32).reshape(ny,nx)
-        np.testing.assert_allclose(x,y,rtol=1e-02,atol=1e-02)
+        np.testing.assert_allclose(x,y,rtol=rtol)
