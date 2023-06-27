@@ -27,7 +27,7 @@ Despite this package being a component for grib2io, grib2io is not a formal depe
 * [Python](https://python.org) 3.8+
 * [NCEPLIBS-sp](https://github.com/NOAA-EMC/NCEPLIBS-sp) 2.4.0+
 * [NCEPLIBS-ip](https://github.com/NOAA-EMC/NCEPLIBS-ip) 4.1.0+
-* setuptools
+* setuptools 61.0+
 * NumPy 1.22+
 * Fortran Compiler: GNU (gfortran) and Intel (ifort) been tested.
 
