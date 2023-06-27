@@ -19,7 +19,7 @@ keywords = [
 readme = "README.md"
 license = {text = "MIT"}
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Environment :: Console",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
@@ -30,6 +30,8 @@ classifiers = [
   "Intended Audience :: Science/Research",
   "License :: OSI Approved",
   "Topic :: Software Development :: Libraries :: Python Modules",
+  "Operating System :: POSIX",
+  "Operating System :: MacOS",
 ]
 dependencies = [
   "numpy",
