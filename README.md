@@ -8,7 +8,14 @@
 [![PyPI version](https://badge.fury.io/py/grib2io-interp.svg)](https://badge.fury.io/py/grib2io-interp)
 
 # Introduction
-`grib2io-interp` is the spatial interpolation component for [grib2io](https://github.com/NOAA-MDL/grib2io).  This package provides a Python interface to the [NCEPLIBS-ip](https://github.com/NOAA-EMC/NCEPLIBS-ip) Fortran Library and contains a single NumPy/F2PY extension module.  Originally, it was a part of the grib2io package, but since it requires NumPy's distutil's `Extension` and `setup` to build and install, it needs to be handled separately from the other grib2io source that are using `setuptools`.
+`grib2io-interp` is the spatial interpolation component for [grib2io](https://github.com/NOAA-MDL/grib2io).  This package provides a Python interface to the [NCEPLIBS-ip](https://github.com/NOAA-EMC/NCEPLIBS-ip) Fortran Library and contains a single NumPy/F2PY extension module.  Originally, it was a part of the grib2io package, but since it requires NumPy's distutil's `Extension` and `setup` to build and install, it needs to be handled separately from the other grib2io source that are using `setuptools`.  This package contains an extension module, `interpolate`, that provides interfaces to Fortran subroutines and these subroutines serve as wrappers to NCEPLIBS-ip subroutines.  The following table illustrates the mapping:
+
+| grib2io-interp | NCEPLIBS-ip |
+| -------------- | ----------- |
+| interpolate.interpolate_scalar | ipolates_grib2 |
+| interpolate.interpolate_vector | ipolatev_grib2 |
+
+**NOTE:** It is recommended that you use [`grib2io.interpolate`](https://noaa-mdl.github.io/grib2io/grib2io.html#interpolate) function to access the interpolation subroutines provided by grib2io-interp.
 
 ## Documentation
 [NOAA-MDL/grib2io-interp](https://noaa-mdl.github.io/grib2io-interp/grib2io-interp.html)
@@ -27,10 +34,10 @@ Despite this package being a component for grib2io, grib2io is not a formal depe
 ## NCEPLIBS Libraries
 
 ### sp and ip
-The NCEP Spectral Interpolation (NCEPLIBS-sp) library is a dependency for the NCEP Interpolation (NCEPLIBS-ip) library.  Both of these libraries are Fortran-based and contains OpenMP directives.
+The NCEP Spectral Interpolation [(NCEPLIBS-sp)](https://github.com/NOAA-EMC/NCEPLIBS-sp) library is a dependency for the NCEP Interpolation [(NCEPLIBS-ip)](https://github.om/NOAA-EMC/NCEPLIBS-ip) library.  Both of these libraries are Fortran-based and contains OpenMP directives.
 
 ## Installation
-If NCEPLIBS-sp, and NCEPLIBS-ip libraries have been installed to custom locations (i.e. not default paths), then please define the root of these installations via environment variables `SP_DIR`, and `IP_DIR`, respectively.
+If NCEPLIBS-sp, and NCEPLIBS-ip libraries have been installed to custom locations (i.e. not default paths), then define the root of these installations via environment variables `SP_DIR`, and `IP_DIR`, respectively.
 ```shell
 pip install grib2io-interp
 ```
