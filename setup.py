@@ -8,7 +8,7 @@ import platform
 import sys
 import sysconfig
 
-VERSION = '1.0.0rc1'
+VERSION = '1.0.0'
 
 # ----------------------------------------------------------------------------------------
 # Class to parse the setup.cfg
@@ -113,26 +113,6 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 # ----------------------------------------------------------------------------------------
 # Run setup
 # ----------------------------------------------------------------------------------------
-setup(name              = 'grib2io_interp',
-      version           = VERSION,
-      description       = 'Interpolation component for grib2io',
-      author            = 'Eric Engle',
-      author_email      = 'eric.engle@noaa.gov',
-      url               = 'https://github.com/NOAA-MDL/grib2io-interp',
-      download_url      = 'http://python.org/pypi/grib2io-interp',
-      classifiers       = ['Development Status :: 4 - Beta',
-                           'Environment :: Console',
-                           'Programming Language :: Python :: 3',
-                           'Programming Language :: Python :: 3 :: Only',
-                           'Programming Language :: Python :: 3.8',
-                           'Programming Language :: Python :: 3.9',
-                           'Programming Language :: Python :: 3.10',
-                           'Programming Language :: Python :: 3.11',
-                           'Intended Audience :: Science/Research',
-                           'License :: OSI Approved',
-                           'Topic :: Software Development :: Libraries :: Python Modules'],
-      packages          = ["grib2io_interp"],
-      package_dir       = {'': 'src'},
-      ext_modules       = [interpext],
+setup(ext_modules       = [interpext],
       long_description  = long_description,
       long_description_content_type = 'text/markdown')
