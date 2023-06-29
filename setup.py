@@ -1,79 +1,74 @@
 from numpy.distutils.core import Extension, setup
-from os import environ
 import configparser
-import glob
 import numpy
 import os
+import pathlib
 import platform
 import sys
-import sysconfig
 
 VERSION = '1.0.0'
 
-# ----------------------------------------------------------------------------------------
-# Class to parse the setup.cfg
-# ----------------------------------------------------------------------------------------
-class _ConfigParser(configparser.ConfigParser):
-    def getq(self, s, k, fallback):
-        try:
-            return self.get(s, k)
-        except:
-            return fallback
-
-# ----------------------------------------------------------------------------------------
-# Setup find_library functions according system.
-# ----------------------------------------------------------------------------------------
-system = platform.system()
-if system == 'Linux':
-    def _find_library_linux(name):
-        import subprocess
-        result = subprocess.run(['/sbin/ldconfig','-p'],stdout=subprocess.PIPE)
-        libs = [i.replace(' => ','#').split('#')[1] for i in result.stdout.decode('utf-8').splitlines()[1:-1]]
-        try:
-            return [l for l in libs if name in l][0]
-        except IndexError:
-            return None
-    find_library = _find_library_linux
-elif system == 'Darwin':
-    from ctypes.util import find_library
-
-# ---------------------------------------------------------------------------------------- 
-# Read setup.cfg. Contents of setup.cfg will override env vars.
-# ----------------------------------------------------------------------------------------
-setup_cfg = environ.get('GRIB2IO_SETUP_CONFIG', 'setup.cfg')
-config = _ConfigParser()
-if os.path.exists(setup_cfg):
-    sys.stdout.write('Reading from setup.cfg...')
-    config.read(setup_cfg)
-
-# ---------------------------------------------------------------------------------------- 
-# Get NCEPLIBS-sp library info. This library is a required for interpolation.
-# ---------------------------------------------------------------------------------------- 
 libdirs = []
 incdirs = []
 libraries = ['sp_4','ip_4']
-sp_dir = config.getq('directories', 'sp_dir', environ.get('SP_DIR'))
-if os.path.exists(os.path.join(sp_dir,'lib')):
-    sp_libdir = os.path.join(sp_dir,'lib')
-elif os.path.exists(os.path.join(sp_dir,'lib64')):
-    sp_libdir = os.path.join(sp_dir,'lib64')
+
+# ----------------------------------------------------------------------------------------
+# find_library.
+# ----------------------------------------------------------------------------------------
+def find_library(name):
+    out = []
+    sysinfo = (os.name, sys.platform)
+    if sysinfo == ('posix', 'darwin'):
+        libext = '.dylib'
+    elif sysinfo == ('posix', 'linux'):
+        libext = '.so'
+    DIRS_TO_SEARCH = ['/usr/local', '/sw', '/opt', '/opt/local', '/opt/homebrew', '/usr']
+    for d in DIRS_TO_SEARCH:
+        libs = pathlib.Path(d).rglob('lib*'+name+libext)
+        for l in libs: out.append(l.as_posix())
+    return list(set(out))[0]
+
+# ---------------------------------------------------------------------------------------- 
+# Read setup.cfg
+# ----------------------------------------------------------------------------------------
+setup_cfg = 'setup.cfg'
+config = configparser.ConfigParser()
+config.read(setup_cfg)
+
+# ---------------------------------------------------------------------------------------- 
+# Get NCEPLIBS-sp library info.  NOTE: NCEPLIBS-sp does not have include files.
+# ---------------------------------------------------------------------------------------- 
+if os.environ.get('SP_DIR'):
+    sp_dir = os.environ.get('SP_DIR')
+    if os.path.exists(os.path.join(sp_dir,'lib')):
+        sp_libdir = os.path.join(sp_dir,'lib')
+    elif os.path.exists(os.path.join(sp_dir,'lib64')):
+        sp_libdir = os.path.join(sp_dir,'lib64')
+else:
+    sp_dir = config.get('directories','sp_dir',fallback=None)
+    if sp_dir is None:
+       sp_libdir = os.path.dirname(find_library('sp_4'))
 libdirs.append(sp_libdir)
 
 # ---------------------------------------------------------------------------------------- 
-# Get NCEPLIBS-ip library info. This library is a required for interpolation.
+# Get NCEPLIBS-ip library info.
 # ---------------------------------------------------------------------------------------- 
-ip_dir = config.getq('directories', 'ip_dir', environ.get('IP_DIR'))
-ip_libdir = config.getq('directories', 'ip_libdir', environ.get('IP_LIBDIR'))
-ip_incdir = config.getq('directories', 'ip_incdir', environ.get('IP_INCDIR'))
-if ip_libdir is None and ip_dir is not None:
-    libdirs.append(os.path.join(ip_dir,'lib'))
-    libdirs.append(os.path.join(ip_dir,'lib64'))
+if os.environ.get('IP_DIR'):
+    ip_dir = os.environ.get('IP_DIR')
+    if os.path.exists(os.path.join(ip_dir,'lib')):
+        ip_libdir = os.path.join(ip_dir,'lib')
+    elif os.path.exists(os.path.join(ip_dir,'lib64')):
+        ip_libdir = os.path.join(ip_dir,'lib64')
 else:
-    libdirs.append(ip_libdir)
-if ip_incdir is None and ip_dir is not None:
-    incdirs.append(os.path.join(ip_dir,'include_4'))
-else:
-    incdirs.append(ip_incdir)
+    ip_dir = config.get('directories','ip_dir',fallback=None)
+    if ip_dir is None:
+       ip_libdir = os.path.dirname(find_library('ip_4'))
+       ip_incdir = os.path.join(os.path.dirname(ip_libdir),'include_4')
+libdirs.append(ip_libdir)
+incdirs.append(ip_incdir)
+
+libdirs = list(set(libdirs))
+incdirs = list(set(incdirs))
 
 # ---------------------------------------------------------------------------------------- 
 # Define interpolation NumPy extension module.
