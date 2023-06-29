@@ -69,6 +69,7 @@ incdirs.append(ip_incdir)
 
 libdirs = list(set(libdirs))
 incdirs = list(set(incdirs))
+incdirs.append(numpy.get_include())
 
 # ---------------------------------------------------------------------------------------- 
 # Define interpolation NumPy extension module.
