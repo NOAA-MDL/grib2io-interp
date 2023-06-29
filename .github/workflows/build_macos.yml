@@ -1,0 +1,32 @@
+name: Build and Test on macOS
+
+on: [push, pull_request]
+
+jobs:
+  build-linux:
+    
+    name: Python (${{ matrix.python-version }})
+    runs-on: macos-latest
+    #env:
+    strategy:
+      matrix:
+        python-version: ["3.8","3.9","3.10","3.11"]
+   
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install macOS Dependencies
+      run: |
+        brew cleanup
+        brew tap eengl/nceplibs
+        brew install nceplibs-g2c nceplibs-sp nceplibs-ip
+
+    - name: Install grib2io and test
+      run: |
+        python -m pip install grib2io==2.0.0rc2
+        python -m pip install .
+        #pytest
