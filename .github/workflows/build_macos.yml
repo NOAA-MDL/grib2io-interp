@@ -21,6 +21,7 @@ jobs:
 
     - name: Install macOS Dependencies
       run: |
+        brew cleanup
         brew tap eengl/nceplibs
         brew install nceplibs-g2c nceplibs-sp nceplibs-ip
 
