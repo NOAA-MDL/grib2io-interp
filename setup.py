@@ -6,7 +6,7 @@ import pathlib
 import platform
 import sys
 
-VERSION = '1.0.1'
+VERSION = '1.0.2'
 
 libdirs = []
 incdirs = []
@@ -15,15 +15,16 @@ libraries = ['sp_4','ip_4']
 # ----------------------------------------------------------------------------------------
 # find_library.
 # ----------------------------------------------------------------------------------------
-def find_library(name):
+def find_library(name, dirs=None):
     out = []
     sysinfo = (os.name, sys.platform)
     if sysinfo == ('posix', 'darwin'):
         libext = '.dylib'
     elif sysinfo == ('posix', 'linux'):
         libext = '.so'
-    DIRS_TO_SEARCH = ['/usr/local', '/sw', '/opt', '/opt/local', '/opt/homebrew', '/usr']
-    for d in DIRS_TO_SEARCH:
+    if dirs is None:
+        dirs = ['/usr/local', '/sw', '/opt', '/opt/local', '/opt/homebrew', '/usr']
+    for d in dirs:
         libs = pathlib.Path(d).rglob('lib*'+name+libext)
         for l in libs: out.append(l.as_posix())
     return list(set(out))[0]
@@ -40,14 +41,13 @@ config.read(setup_cfg)
 # ---------------------------------------------------------------------------------------- 
 if os.environ.get('SP_DIR'):
     sp_dir = os.environ.get('SP_DIR')
-    if os.path.exists(os.path.join(sp_dir,'lib')):
-        sp_libdir = os.path.join(sp_dir,'lib')
-    elif os.path.exists(os.path.join(sp_dir,'lib64')):
-        sp_libdir = os.path.join(sp_dir,'lib64')
+    sp_libdir = os.path.dirname(find_library('sp_4', dirs=[sp_dir]))
 else:
     sp_dir = config.get('directories','sp_dir',fallback=None)
     if sp_dir is None:
-       sp_libdir = os.path.dirname(find_library('sp_4'))
+        sp_libdir = os.path.dirname(find_library('sp_4'))
+    else:
+        sp_libdir = os.path.dirname(find_library('sp_4', dirs=[sp_dir]))
 libdirs.append(sp_libdir)
 
 # ---------------------------------------------------------------------------------------- 
@@ -55,15 +55,16 @@ libdirs.append(sp_libdir)
 # ---------------------------------------------------------------------------------------- 
 if os.environ.get('IP_DIR'):
     ip_dir = os.environ.get('IP_DIR')
-    if os.path.exists(os.path.join(ip_dir,'lib')):
-        ip_libdir = os.path.join(ip_dir,'lib')
-    elif os.path.exists(os.path.join(ip_dir,'lib64')):
-        ip_libdir = os.path.join(ip_dir,'lib64')
+    ip_libdir = os.path.dirname(find_library('ip_4', dirs=[ip_dir]))
+    ip_incdir = os.path.join(ip_dir,'include_4')
 else:
     ip_dir = config.get('directories','ip_dir',fallback=None)
     if ip_dir is None:
-       ip_libdir = os.path.dirname(find_library('ip_4'))
-       ip_incdir = os.path.join(os.path.dirname(ip_libdir),'include_4')
+        ip_libdir = os.path.dirname(find_library('ip_4'))
+        ip_incdir = os.path.join(os.path.dirname(ip_libdir),'include_4')
+    else:
+        ip_libdir = os.path.dirname(find_library('ip_4', dirs=[ip_dir]))
+        ip_incdir = os.path.join(os.path.dirname(ip_libdir),'include_4')
 libdirs.append(ip_libdir)
 incdirs.append(ip_incdir)
 
