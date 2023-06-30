@@ -3,7 +3,7 @@ name: Build and Test on macOS
 on: [push, pull_request]
 
 jobs:
-  build-linux:
+  build-macos:
     
     name: Python (${{ matrix.python-version }})
     runs-on: macos-latest
