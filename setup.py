@@ -23,10 +23,14 @@ def find_library(name, dirs=None):
     elif sysinfo == ('posix', 'linux'):
         libext = '.so'
     if dirs is None:
-        dirs = ['/usr/local', '/sw', '/opt', '/opt/local', '/opt/homebrew', '/usr']
+        if os.environ.get('CONDA_PREFIX'):
+            dirs = [os.environ['CONDA_PREFIX']]
+        else:
+            dirs = ['/usr/local', '/sw', '/opt', '/opt/local', '/opt/homebrew', '/usr']
     for d in dirs:
         libs = pathlib.Path(d).rglob('lib*'+name+libext)
-        for l in libs: out.append(l.as_posix())
+        for l in libs:
+            out.append(l.absolute().resolve().as_posix())
     return list(set(out))[0]
 
 # ---------------------------------------------------------------------------------------- 
