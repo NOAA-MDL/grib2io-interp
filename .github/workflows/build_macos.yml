@@ -8,6 +8,7 @@ jobs:
     name: Python (${{ matrix.python-version }})
     runs-on: macos-latest
     env:
+      CC: gcc-12
       FC: gfortran-12
     strategy:
       matrix:
@@ -22,14 +23,10 @@ jobs:
 
     - name: Install macOS Dependencies
       run: |
-        brew list
-        which gfortran-12
-        gfortran-12 --version
         brew tap eengl/nceplibs
         brew install nceplibs-g2c nceplibs-sp nceplibs-ip
 
     - name: Install grib2io and test
       run: |
-        python -m pip install grib2io==2.0.0rc2
         python -m pip install .
         #pytest
