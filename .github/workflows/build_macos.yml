@@ -24,6 +24,7 @@ jobs:
       run: |
         brew list
         which gfortran
+        gfortran --version
         brew tap eengl/nceplibs
         brew install nceplibs-g2c nceplibs-sp nceplibs-ip
         exit 0
