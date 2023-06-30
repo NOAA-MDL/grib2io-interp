@@ -27,7 +27,6 @@ jobs:
         gfortran --version
         brew tap eengl/nceplibs
         brew install nceplibs-g2c nceplibs-sp nceplibs-ip
-        exit 0
 
     - name: Install grib2io and test
       run: |
