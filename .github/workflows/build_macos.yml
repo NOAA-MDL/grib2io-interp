@@ -21,8 +21,7 @@ jobs:
 
     - name: Install macOS Dependencies
       run: |
-        brew cleanup -s
-        rm -rf "$(brew --cache)"
+        brew install gfortran
         brew tap eengl/nceplibs
         brew install nceplibs-g2c nceplibs-sp nceplibs-ip
 
