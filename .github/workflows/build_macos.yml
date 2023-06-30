@@ -8,7 +8,7 @@ jobs:
     name: Python (${{ matrix.python-version }})
     runs-on: macos-latest
     env:
-      FC: gfortran
+      FC: gfortran-12
     strategy:
       matrix:
         python-version: ["3.11"] #["3.8","3.9","3.10","3.11"]
@@ -23,8 +23,8 @@ jobs:
     - name: Install macOS Dependencies
       run: |
         brew list
-        which gfortran
-        gfortran --version
+        which gfortran-12
+        gfortran-12 --version
         brew tap eengl/nceplibs
         brew install nceplibs-g2c nceplibs-sp nceplibs-ip
 
