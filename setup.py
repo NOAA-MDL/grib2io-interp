@@ -6,7 +6,7 @@ import pathlib
 import platform
 import sys
 
-VERSION = '1.0.2'
+VERSION = '1.0.3'
 
 libdirs = []
 incdirs = []
