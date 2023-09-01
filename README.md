@@ -33,7 +33,7 @@ Despite this package being a component for grib2io, grib2io is not a formal depe
 * [NCEPLIBS-ip](https://github.com/NOAA-EMC/NCEPLIBS-ip) 4.1.0+
 * setuptools 61.0+
 * NumPy 1.22+
-* Fortran Compiler: GNU (gfortran) and Intel (ifort) been tested.
+* Fortran Compiler: GNU (gfortran) and Intel (ifort) have been tested.
 
 ## NCEPLIBS Libraries
 
