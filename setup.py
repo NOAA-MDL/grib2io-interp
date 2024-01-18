@@ -19,28 +19,34 @@ libraries = ['sp_4','ip_4']
 # find_library.
 # ----------------------------------------------------------------------------------------
 def find_library(name, dirs=None):
+    _libext_by_platform = {"linux": ".so", "darwin": ".dylib"}
     out = []
     sysinfo = (os.name, sys.platform)
 
     # According to the ctypes documentation Mac and Windows ctypes_find_library
-    # returns the full path.
-    if sysinfo != ("posix", "linux"):
-        return ctypes_find_library(name)
+    # returns the full path.  Also ctypes_find_library doesn't work for macOS
+    # on Apple Silicon.
+    if sysinfo not in [("posix", "linux"), ("darwin", "arm64")]:
+        sname = ctypes_find_library(name)
+        return sname if sname is not None else ctypes_find_library(f"lib{name}")
 
-    # For Linux have to search ourselves.
-    libext = ".so"
+    # For Linux and macOS on Apple Silicon have to search ourselves.
+    libext = _libext_by_platform[sys.platform]
+
     if dirs is None:
+        dirs = []
         if os.environ.get("CONDA_PREFIX"):
-            dirs = [os.environ["CONDA_PREFIX"]]
-        else:
-            dirs = ["/usr/local", "/sw", "/opt", "/opt/local", "/opt/homebrew", "/usr"]
-    if os.environ.get("LD_LIBRARY_PATH"):
-        dirs = dirs + os.environ.get("LD_LIBRARY_PATH").split(":")
+            dirs.extend([os.environ["CONDA_PREFIX"]])
+        if os.environ.get("LD_LIBRARY_PATH"):
+            dirs.extend(os.environ.get("LD_LIBRARY_PATH").split(":"))
+        dirs.extend(["/usr/local", "/sw", "/opt", "/opt/local", "/opt/homebrew", "/usr"])
 
     out = []
     for d in dirs:
         libs = Path(d).rglob(f"lib*{name}{libext}")
         out.extend(libs)
+        if out:
+            break
     if not out:
         raise ValueError(
             f"""
