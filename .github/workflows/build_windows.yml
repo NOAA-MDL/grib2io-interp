@@ -1,0 +1,41 @@
+name: Build and Test on Windows
+
+on: [push, pull_request]
+
+jobs
+  build-windows:
+
+    name: Python (${{ matrix.python-version }})
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.8","3.9","3.10","3.11"]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Create environment
+      run: |
+        C:\Miniconda\condabin\conda.bat init powershell
+        C:\Miniconda\condabin\conda.bat create --name base${{ matrix.python-version }} python=${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        # Activate the base environment
+        C:\Miniconda\condabin\conda.bat activate base${{ matrix.python-version }}
+        C:\Miniconda\condabin\conda.bat install -c conda-forge setuptools nceplibs-ip numpy m2w64-gcc-fortran m2w64-gcc-libs ninja pip
+    - name: Install with pip
+      run: |
+        # Activate the base environment
+        C:\Miniconda\condabin\conda.bat activate base${{ matrix.python-version }}
+        pip install .
+    - name: Test with pytest
+      run: |
+        # Activate the base environment
+        C:\Miniconda\condabin\conda.bat activate base${{ matrix.python-version }}
+        C:\Miniconda\condabin\conda.bat install pytest
+        #pytest
