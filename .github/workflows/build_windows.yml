@@ -2,7 +2,7 @@ name: Build and Test on Windows
 
 on: [push, pull_request]
 
-jobs
+jobs:
   build-windows:
 
     name: Python (${{ matrix.python-version }})
