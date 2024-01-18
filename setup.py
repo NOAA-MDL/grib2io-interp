@@ -11,7 +11,7 @@ VERSION = '1.0.3'
 
 libdirs = []
 incdirs = []
-libraries = ['sp_4','ip_4']
+libraries = ['libsp_4','libip_4']
 
 
 # fmt: on
@@ -27,8 +27,7 @@ def find_library(name, dirs=None):
     # returns the full path.  Also ctypes_find_library doesn't work for macOS
     # on Apple Silicon.
     if sysinfo not in [("posix", "linux"), ("darwin", "arm64")]:
-        sname = ctypes_find_library(name)
-        return sname if sname is not None else ctypes_find_library(f"lib{name}")
+        return ctypes_find_library(name)
 
     # For Linux and macOS on Apple Silicon have to search ourselves.
     libext = _libext_by_platform[sys.platform]
@@ -39,11 +38,13 @@ def find_library(name, dirs=None):
             dirs.extend([os.environ["CONDA_PREFIX"]])
         if os.environ.get("LD_LIBRARY_PATH"):
             dirs.extend(os.environ.get("LD_LIBRARY_PATH").split(":"))
-        dirs.extend(["/usr/local", "/sw", "/opt", "/opt/local", "/opt/homebrew", "/usr"])
+        dirs.extend(
+            ["/usr/local", "/sw", "/opt", "/opt/local", "/opt/homebrew", "/usr"]
+        )
 
     out = []
     for d in dirs:
-        libs = Path(d).rglob(f"lib*{name}{libext}")
+        libs = Path(d).rglob(f"{name}{libext}")
         out.extend(libs)
         if out:
             break
@@ -51,7 +52,7 @@ def find_library(name, dirs=None):
         raise ValueError(
             f"""
 
-The library "lib{name}{libext}" could not be found in any of the following
+The library "{name}{libext}" could not be found in any of the following
 directories:
 {dirs}
 
