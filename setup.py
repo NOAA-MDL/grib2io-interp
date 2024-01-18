@@ -48,7 +48,7 @@ def find_library(name, dirs=None):
 
     out = []
     for d in dirs:
-        libs = Path(d).rglob(f"{name}{libext}")
+        libs = Path(d).rglob(f"lib{name}{libext}")
         out.extend(libs)
         if out:
             break
