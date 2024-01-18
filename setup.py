@@ -76,13 +76,13 @@ config.read(setup_cfg)
 # ----------------------------------------------------------------------------------------
 if os.environ.get('SP_DIR'):
     sp_dir = os.environ.get('SP_DIR')
-    sp_libdir = os.path.dirname(find_library('sp_4', dirs=[sp_dir]))
+    sp_libdir = os.path.dirname(find_library('libsp_4', dirs=[sp_dir]))
 else:
     sp_dir = config.get('directories','sp_dir',fallback=None)
     if sp_dir is None:
-        sp_libdir = os.path.dirname(find_library('sp_4'))
+        sp_libdir = os.path.dirname(find_library('libsp_4'))
     else:
-        sp_libdir = os.path.dirname(find_library('sp_4', dirs=[sp_dir]))
+        sp_libdir = os.path.dirname(find_library('libsp_4', dirs=[sp_dir]))
 libdirs.append(sp_libdir)
 
 # ----------------------------------------------------------------------------------------
@@ -90,15 +90,15 @@ libdirs.append(sp_libdir)
 # ----------------------------------------------------------------------------------------
 if os.environ.get('IP_DIR'):
     ip_dir = os.environ.get('IP_DIR')
-    ip_libdir = os.path.dirname(find_library('ip_4', dirs=[ip_dir]))
+    ip_libdir = os.path.dirname(find_library('libip_4', dirs=[ip_dir]))
     ip_incdir = os.path.join(ip_dir,'include_4')
 else:
     ip_dir = config.get('directories','ip_dir',fallback=None)
     if ip_dir is None:
-        ip_libdir = os.path.dirname(find_library('ip_4'))
+        ip_libdir = os.path.dirname(find_library('libip_4'))
         ip_incdir = os.path.join(os.path.dirname(ip_libdir),'include_4')
     else:
-        ip_libdir = os.path.dirname(find_library('ip_4', dirs=[ip_dir]))
+        ip_libdir = os.path.dirname(find_library('libip_4', dirs=[ip_dir]))
         ip_incdir = os.path.join(os.path.dirname(ip_libdir),'include_4')
 libdirs.append(ip_libdir)
 incdirs.append(ip_incdir)
