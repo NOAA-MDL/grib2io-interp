@@ -13,7 +13,7 @@ libdirs = []
 incdirs = []
 libraries = ['sp_4','ip_4']
 if sys.platform == "win32":
-    libraries = ["libsp_4.dll", "libip_4.dll"]
+    libraries = ["sp_4", "ip_4"]
 
 
 # fmt: on
@@ -110,6 +110,13 @@ incdirs.append(ip_incdir)
 libdirs = list(set(libdirs))
 incdirs = list(set(incdirs))
 incdirs.append(numpy.get_include())
+
+# Weird change in how Windows looks for DLLs.  Used to follow system PATH
+# environment variable but changed to having to explicitly set for security
+# reasons.
+if "add_dll_directory" in dir(os):
+    for ldir in libdirs:
+        os.add_dll_directory(ldir)
 
 # ----------------------------------------------------------------------------------------
 # Define interpolation NumPy extension module.
