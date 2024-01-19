@@ -111,6 +111,9 @@ libdirs = list(set(libdirs))
 incdirs = list(set(incdirs))
 incdirs.append(numpy.get_include())
 
+print(f"{libdirs=}")
+print(f"{incdirs=}")
+
 # Weird change in how Windows looks for DLLs.  Used to follow system PATH
 # environment variable but changed to having to explicitly set for security
 # reasons.
