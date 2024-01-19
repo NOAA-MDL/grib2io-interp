@@ -1,9 +1,10 @@
+# fmt: off
 from numpy.distutils.core import Extension, setup
 import configparser
+from ctypes.util import find_library as ctypes_find_library
 import numpy
 import os
-import pathlib
-import platform
+from pathlib import Path
 import sys
 
 VERSION = '1.0.3'
@@ -11,38 +12,72 @@ VERSION = '1.0.3'
 libdirs = []
 incdirs = []
 libraries = ['sp_4','ip_4']
+if sys.platform == "win32":
+    libraries = ["libsp_4.dll", "libip_4.dll"]
 
+
+# fmt: on
 # ----------------------------------------------------------------------------------------
 # find_library.
 # ----------------------------------------------------------------------------------------
 def find_library(name, dirs=None):
+    _libext_by_platform = {"linux": ".so", "darwin": ".dylib", "win32": ".dll"}
     out = []
     sysinfo = (os.name, sys.platform)
-    if sysinfo == ('posix', 'darwin'):
-        libext = '.dylib'
-    elif sysinfo == ('posix', 'linux'):
-        libext = '.so'
-    if dirs is None:
-        if os.environ.get('CONDA_PREFIX'):
-            dirs = [os.environ['CONDA_PREFIX']]
-        else:
-            dirs = ['/usr/local', '/sw', '/opt', '/opt/local', '/opt/homebrew', '/usr']
-    for d in dirs:
-        libs = pathlib.Path(d).rglob('lib*'+name+libext)
-        for l in libs:
-            out.append(l.absolute().resolve().as_posix())
-    return list(set(out))[0]
 
-# ---------------------------------------------------------------------------------------- 
+    # According to the ctypes documentation Mac and Windows ctypes_find_library
+    # returns the full path.  Also ctypes_find_library returns None for macOS
+    # on Apple Silicon.
+    if sys.platform != "linux":
+        for sname in [ctypes_find_library(name), ctypes_find_library(f"lib{name}")]:
+            if sname is not None:
+                return sname
+
+    # For Linux and macOS on Apple Silicon have to search ourselves.
+    libext = _libext_by_platform[sys.platform]
+
+    if dirs is None:
+        dirs = []
+        if os.environ.get("CONDA_PREFIX"):
+            dirs.extend([os.environ["CONDA_PREFIX"]])
+        if os.environ.get("LD_LIBRARY_PATH"):
+            dirs.extend(os.environ.get("LD_LIBRARY_PATH").split(":"))
+        dirs.extend(
+            ["/usr/local", "/sw", "/opt", "/opt/local", "/opt/homebrew", "/usr"]
+        )
+
+    out = []
+    for d in dirs:
+        libs = Path(d).rglob(f"lib{name}{libext}")
+        out.extend(libs)
+        if out:
+            break
+    if not out:
+        raise ValueError(
+            f"""
+
+The library "{name}{libext}" could not be found in any of the following
+directories:
+{dirs}
+
+"""
+        )
+    return out[0].absolute().resolve().as_posix()
+
+
+# fmt: off
+
+
+# ----------------------------------------------------------------------------------------
 # Read setup.cfg
 # ----------------------------------------------------------------------------------------
 setup_cfg = 'setup.cfg'
 config = configparser.ConfigParser()
 config.read(setup_cfg)
 
-# ---------------------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------------------
 # Get NCEPLIBS-sp library info.  NOTE: NCEPLIBS-sp does not have include files.
-# ---------------------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------------------
 if os.environ.get('SP_DIR'):
     sp_dir = os.environ.get('SP_DIR')
     sp_libdir = os.path.dirname(find_library('sp_4', dirs=[sp_dir]))
@@ -54,9 +89,9 @@ else:
         sp_libdir = os.path.dirname(find_library('sp_4', dirs=[sp_dir]))
 libdirs.append(sp_libdir)
 
-# ---------------------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------------------
 # Get NCEPLIBS-ip library info.
-# ---------------------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------------------
 if os.environ.get('IP_DIR'):
     ip_dir = os.environ.get('IP_DIR')
     ip_libdir = os.path.dirname(find_library('ip_4', dirs=[ip_dir]))
@@ -76,9 +111,19 @@ libdirs = list(set(libdirs))
 incdirs = list(set(incdirs))
 incdirs.append(numpy.get_include())
 
-# ---------------------------------------------------------------------------------------- 
+print(f"{libdirs=}")
+print(f"{incdirs=}")
+
+# Weird change in how Windows looks for DLLs.  Used to follow system PATH
+# environment variable but changed to having to explicitly set for security
+# reasons.
+if "add_dll_directory" in dir(os):
+    for ldir in libdirs:
+        os.add_dll_directory(ldir)
+
+# ----------------------------------------------------------------------------------------
 # Define interpolation NumPy extension module.
-# ---------------------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------------------
 interpext = Extension(name = 'grib2io_interp.interpolate',
                       sources = ['src/interpolate/interpolate.pyf','src/interpolate/interpolate.f90'],
                       extra_f77_compile_args = ['-O3','-fopenmp'],
