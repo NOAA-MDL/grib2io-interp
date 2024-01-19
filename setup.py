@@ -13,7 +13,7 @@ libdirs = []
 incdirs = []
 libraries = ['sp_4','ip_4']
 if sys.platform == "win32":
-    libraries = ["libsp_4", "libip_4"]
+    libraries = ["sp_4", "ip_4"]
 
 
 # fmt: on
