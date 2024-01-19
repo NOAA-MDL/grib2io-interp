@@ -29,15 +29,8 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install dependencies
-      run: >
-        conda install
-                      c-compiler
-                      gfortran
-                      nceplibs-ip
-                      ninja
-                      numpy
-                      pip
-                      setuptools
+      run: |
+        conda install c-compiler gfortran nceplibs-ip ninja numpy pip setuptools
     - name: Install with pip
       run: |
         pip install .
