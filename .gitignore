@@ -1,5 +1,8 @@
 src/grib2io_interp/__config__.py
 
+# macOS Finder customization files
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

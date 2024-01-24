@@ -1,37 +1,62 @@
 from numpy.distutils.core import Extension, setup
+from pathlib import Path
 import configparser
 import numpy
 import os
-import pathlib
 import platform
 import sys
 
-VERSION = '1.0.3'
+with open("VERSION","rt") as f:
+    VERSION = f.readline().strip()
 
 libdirs = []
 incdirs = []
-libraries = ['sp_4','ip_4']
+libraries = ['ip_4']
 
 # ----------------------------------------------------------------------------------------
 # find_library.
 # ----------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------
+# find_library.
+# ----------------------------------------------------------------------------------------
 def find_library(name, dirs=None):
+    _libext_by_platform = {"linux": ".so", "darwin": ".dylib"}
     out = []
-    sysinfo = (os.name, sys.platform)
-    if sysinfo == ('posix', 'darwin'):
-        libext = '.dylib'
-    elif sysinfo == ('posix', 'linux'):
-        libext = '.so'
-    if dirs is None:
-        if os.environ.get('CONDA_PREFIX'):
-            dirs = [os.environ['CONDA_PREFIX']]
+
+    # According to the ctypes documentation Mac and Windows ctypes_find_library
+    # returns the full path.
+    #
+    # IMPORTANT: The following does not work at this time (Jan. 2024) for macOS on
+    # Apple Silicon.
+    if (os.name, sys.platform) != ("posix", "linux"):
+        if (sys.platform, platform.machine()) == ("darwin", "arm64"):
+            pass
         else:
-            dirs = ['/usr/local', '/sw', '/opt', '/opt/local', '/opt/homebrew', '/usr']
+            return ctypes_find_library(name)
+
+    # For Linux and macOS (Apple Silicon), we have to search ourselves.
+    libext = _libext_by_platform[sys.platform]
+    if dirs is None:
+        if os.environ.get("CONDA_PREFIX"):
+            dirs = [os.environ["CONDA_PREFIX"]]
+        else:
+            dirs = ["/usr/local", "/sw", "/opt", "/opt/local", "/opt/homebrew", "/usr"]
+    if os.environ.get("LD_LIBRARY_PATH"):
+        dirs = dirs + os.environ.get("LD_LIBRARY_PATH").split(":")
+
+    out = []
     for d in dirs:
-        libs = pathlib.Path(d).rglob('lib*'+name+libext)
-        for l in libs:
-            out.append(l.absolute().resolve().as_posix())
-    return list(set(out))[0]
+        libs = Path(d).rglob(f"lib*{name}{libext}")
+        out.extend(libs)
+    if not out:
+        raise ValueError(f"""
+
+The library "lib{name}{libext}" could not be found in any of the following
+directories:
+{dirs}
+
+""")
+    return out[0].absolute().resolve().as_posix()
 
 # ---------------------------------------------------------------------------------------- 
 # Read setup.cfg
@@ -39,20 +64,6 @@ def find_library(name, dirs=None):
 setup_cfg = 'setup.cfg'
 config = configparser.ConfigParser()
 config.read(setup_cfg)
-
-# ---------------------------------------------------------------------------------------- 
-# Get NCEPLIBS-sp library info.  NOTE: NCEPLIBS-sp does not have include files.
-# ---------------------------------------------------------------------------------------- 
-if os.environ.get('SP_DIR'):
-    sp_dir = os.environ.get('SP_DIR')
-    sp_libdir = os.path.dirname(find_library('sp_4', dirs=[sp_dir]))
-else:
-    sp_dir = config.get('directories','sp_dir',fallback=None)
-    if sp_dir is None:
-        sp_libdir = os.path.dirname(find_library('sp_4'))
-    else:
-        sp_libdir = os.path.dirname(find_library('sp_4', dirs=[sp_dir]))
-libdirs.append(sp_libdir)
 
 # ---------------------------------------------------------------------------------------- 
 # Get NCEPLIBS-ip library info.
