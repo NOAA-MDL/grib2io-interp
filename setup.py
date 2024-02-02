@@ -1,3 +1,4 @@
+from ctypes.util import find_library as ctypes_find_library
 from numpy.distutils.core import Extension, setup
 from pathlib import Path
 import configparser
@@ -16,9 +17,6 @@ libraries = ['ip_4']
 # ----------------------------------------------------------------------------------------
 # find_library.
 # ----------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------
-# find_library.
-# ----------------------------------------------------------------------------------------
 def find_library(name, dirs=None):
     _libext_by_platform = {"linux": ".so", "darwin": ".dylib"}
     out = []
@@ -32,7 +30,7 @@ def find_library(name, dirs=None):
         if (sys.platform, platform.machine()) == ("darwin", "arm64"):
             pass
         else:
-            return ctypes_find_library(name)
+            out.append(ctypes_find_library(name))
 
     # For Linux and macOS (Apple Silicon), we have to search ourselves.
     libext = _libext_by_platform[sys.platform]
