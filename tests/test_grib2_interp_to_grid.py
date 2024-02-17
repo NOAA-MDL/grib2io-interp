@@ -13,8 +13,6 @@ nbm_grid_def = grib2io.Grib2GridDef(gdtn_nbm, gdt_nbm)
 nx = gdt_nbm[7]
 ny = gdt_nbm[8]
 
-rtol = 1e-04
-
 def _writer(path,a):
     """
     """
@@ -28,6 +26,7 @@ def test_bicubic_interp_to_grid(request):
     filename = 'bicubic-interp-grid-output.bin'
     with grib2io.open(data / 'gfs.t00z.pgrb2.1p00.f024') as f:
         msg = f.select(shortName='TMP',level='2 m above ground')[0]
+        rtol = 1./10**msg.decScaleFactor
         newmsg = msg.interpolate('bicubic',nbm_grid_def)
         #_writer(outputdata / filename,newmsg.data)
         x = newmsg.data
@@ -40,6 +39,7 @@ def test_bilinear_interp_to_grid(request):
     filename = 'bilinear-interp-grid-output.bin'
     with grib2io.open(data / 'gfs.t00z.pgrb2.1p00.f024') as f:
         msg = f.select(shortName='TMP',level='2 m above ground')[0]
+        rtol = 1./10**msg.decScaleFactor
         newmsg = msg.interpolate('bilinear',nbm_grid_def)
         #_writer(outputdata / filename,newmsg.data)
         x = newmsg.data
@@ -52,6 +52,7 @@ def test_budget_interp_to_grid(request):
     filename = 'budget-interp-grid-output.bin'
     with grib2io.open(data / 'gfs.t00z.pgrb2.1p00.f024') as f:
         msg = f.select(shortName='TMP',level='2 m above ground')[0]
+        rtol = 1./10**msg.decScaleFactor
         newmsg = msg.interpolate('budget',nbm_grid_def)
         x = newmsg.data
         y = np.fromfile(outputdata / filename,dtype=np.float32).reshape(ny,nx)
@@ -63,6 +64,7 @@ def test_neighbor_interp_to_grid(request):
     filename = 'neighbor-interp-grid-output.bin'
     with grib2io.open(data / 'gfs.t00z.pgrb2.1p00.f024') as f:
         msg = f.select(shortName='TMP',level='2 m above ground')[0]
+        rtol = 1./10**msg.decScaleFactor
         newmsg = msg.interpolate('neighbor',nbm_grid_def)
         #_writer(outputdata / filename,newmsg.data)
         x = newmsg.data
@@ -75,6 +77,7 @@ def test_neighbor_budget_interp_to_grid(request):
     filename = 'neighbor-budget-interp-grid-output.bin'
     with grib2io.open(data / 'gfs.t00z.pgrb2.1p00.f024') as f:
         msg = f.select(shortName='TMP',level='2 m above ground')[0]
+        rtol = 1./10**msg.decScaleFactor
         newmsg = msg.interpolate('neighbor-budget',nbm_grid_def)
         #_writer(outputdata / filename,newmsg.data)
         x = newmsg.data
