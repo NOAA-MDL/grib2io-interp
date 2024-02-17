@@ -54,7 +54,7 @@ jobs:
         make -j2
         sudo make install
         
-    - name: Install grib2iointerl and test
+    - name: Install grib2io-interp and test
       run: |
         python -m pip install .
         pytest
