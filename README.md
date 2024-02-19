@@ -1,14 +1,19 @@
 # grib2io-interp: Spatial Interpolation component for grib2io
 
-![Build Linux](https://github.com/NOAA-MDL/grib2io-interp/actions/workflows/build_linux.yml/badge.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 [![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)](https://www.python.org/downloads/release/python-380/)
 [![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/)
 [![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/release/python-3100/)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
-[![PyPI version](https://badge.fury.io/py/grib2io-interp.svg)](https://badge.fury.io/py/grib2io-interp)
+
+![Build Linux](https://github.com/NOAA-MDL/grib2io-interp/actions/workflows/build_linux.yml/badge.svg)
+
+![PyPI](https://img.shields.io/pypi/v/grib2io-interp?label=pypi%20package)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/grib2io-interp)
+
 [![Anaconda-Server Badge](https://anaconda.org/conda-forge/grib2io-interp/badges/version.svg)](https://anaconda.org/conda-forge/grib2io-interp)
 [![Anaconda-Server Badge](https://anaconda.org/conda-forge/grib2io-interp/badges/platforms.svg)](https://anaconda.org/conda-forge/grib2io-interp)
-[![Anaconda-Server Badge](https://anaconda.org/conda-forge/grib2io-interp/badges/license.svg)](https://anaconda.org/conda-forge/grib2io-interp)
 [![Anaconda-Server Badge](https://anaconda.org/conda-forge/grib2io-interp/badges/downloads.svg)](https://anaconda.org/conda-forge/grib2io-interp)
 
 # Introduction
@@ -28,20 +33,18 @@
 
 Despite this package being a component for grib2io, grib2io is not a formal dependency for grib2io-interp.
 
-* [Python](https://python.org) 3.8+
-* [NCEPLIBS-sp](https://github.com/NOAA-EMC/NCEPLIBS-sp) 2.4.0+
-* [NCEPLIBS-ip](https://github.com/NOAA-EMC/NCEPLIBS-ip) 4.1.0+
+* [Python](https://python.org) 3.8, 3.9, 3.10, 3.11
+* [NCEPLIBS-ip](https://github.com/NOAA-EMC/NCEPLIBS-ip) 5.0.0+
 * setuptools 61.0+
 * NumPy 1.22+
 * Fortran Compiler: GNU (gfortran) and Intel (ifort) have been tested.
 
-## NCEPLIBS Libraries
+## NCEPLIBS-ip
 
-### sp and ip
-The NCEP Spectral Interpolation [(NCEPLIBS-sp)](https://github.com/NOAA-EMC/NCEPLIBS-sp) library is a dependency for the NCEP Interpolation [(NCEPLIBS-ip)](https://github.om/NOAA-EMC/NCEPLIBS-ip) library.  Both of these libraries are Fortran-based and contains OpenMP directives.
+**IMPORTANT:** Beginning with version 5.0.0 of the NCEP Interpolation [(NCEPLIBS-ip)](https://github.om/NOAA-EMC/NCEPLIBS-ip) library, the NCEP Spectral Interpolation [(NCEPLIBS-sp)](https://github.com/NOAA-EMC/NCEPLIBS-sp) library is now integrated into NCEPLIBS-ip.
 
 ## Installation
-If NCEPLIBS-sp, and NCEPLIBS-ip libraries have been installed to custom locations (i.e. not default paths), then define the root of these installations via environment variables `SP_DIR`, and `IP_DIR`, respectively.
+If NCEPLIBS-ip has been installed to custom location (i.e. not default paths), then define the root of the installation via environment variable `IP_DIR`.
 ```shell
 pip install grib2io-interp
 ```
@@ -50,7 +53,7 @@ pip install grib2io-interp
 
 * Clone GitHub repository or download a source release from [GitHub](https://github.com/NOAA-MDL/grib2io-interp) or [PyPI](https://pypi.python.org/pypi/grib2io-interp).
 
-* Edit `setup.cfg` to define the sp, and ip library installation paths __OR__ define `SP_DIR` and `IP_DIR` environment variables.
+* Edit `setup.cfg` to define the NCEPLIBS-ip library installation path __OR__ define `IP_DIR` environment variable.
 
 * Build and install.  Use `--user` to install into personal space (`$HOME/.local`).
 
@@ -61,6 +64,10 @@ To build with Intel compilers, perform the following
 ```shell
 pip install . --config-settings="--build-option=build --fcompiler=intelem"
 ```
+
+## Development
+
+The intention of grib2io-interp is to become the offical Python interface for the NCEP g2c library.  Therefore, the development evolution of grib2io will mainly focus on how best to serve that purpose and its primary user's -- mainly meteorologists, physical scientists, and software developers supporting the missions within NOAA's National Weather Service (NWS) and National Centers for Environmental Prediction (NCEP), and other NOAA organizations.
 
 ## Disclaimer
 
