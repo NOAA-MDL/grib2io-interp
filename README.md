@@ -33,7 +33,7 @@
 
 Despite this package being a component for grib2io, grib2io is not a formal dependency for grib2io-interp.
 
-* [Python](https://python.org) 3.8, 3.9, 3.10, 3.11
+* [Python](https://python.org) 3.8, 3.9, 3.10, and 3.11
 * [NCEPLIBS-ip](https://github.com/NOAA-EMC/NCEPLIBS-ip) 5.0.0+
 * setuptools 61.0+
 * NumPy 1.22+
