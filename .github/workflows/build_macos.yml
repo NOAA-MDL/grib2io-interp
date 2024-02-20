@@ -36,5 +36,5 @@ jobs:
         
     - name: Install grib2io-interp and test
       run: |
-        python -m pip install .
+        python setup.py build --fcompiler=gnu95 install
         pytest
