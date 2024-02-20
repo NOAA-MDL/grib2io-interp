@@ -36,5 +36,7 @@ jobs:
         
     - name: Install grib2io-interp and test
       run: |
-        python setup.py build --fcompiler=gnu95 install
+        export CC=$(brew --prefix gcc@13)/bin/gcc-13
+        export FC=$(brew --prefix gcc@13)/bin/gfortran-13
+        python -m pip install . --config-settings="--build-option=build --fcompiler=gnu95"
         pytest
