@@ -1,4 +1,4 @@
-# grib2io-interp: Spatial Interpolation component for grib2io
+# grib2io-interp: Interpolation Component Package for grib2io
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -17,7 +17,7 @@
 [![Anaconda-Server Badge](https://anaconda.org/conda-forge/grib2io-interp/badges/downloads.svg)](https://anaconda.org/conda-forge/grib2io-interp)
 
 # Introduction
-`grib2io-interp` is the spatial interpolation component for [grib2io](https://github.com/NOAA-MDL/grib2io).  This package provides a Python interface to the [NCEPLIBS-ip](https://github.com/NOAA-EMC/NCEPLIBS-ip) Fortran Library and contains a single NumPy/F2PY extension module.  Originally, it was a part of the grib2io package, but since it requires NumPy's distutil's `Extension` and `setup` to build and install, it needs to be handled separately from the other grib2io source that are using `setuptools`.  This package contains an extension module, `interpolate`, that provides interfaces to Fortran subroutines and these subroutines serve as wrappers to NCEPLIBS-ip subroutines.  The following table illustrates the mapping:
+`grib2io-interp` is an interpolation component package for [grib2io](https://github.com/NOAA-MDL/grib2io).  This package provides a Python interface to the [NCEPLIBS-ip](https://github.com/NOAA-EMC/NCEPLIBS-ip) Fortran library via a NumPy/F2PY extension module.  Originally, grib2io-interp was a part of the grib2io package, but since it requires NumPy.distutils to build and install, it needs to be handled separately from the main grib2io source that are using `setuptools`.  This package contains an extension module, `interpolate`, that provides interfaces to Fortran subroutines and these subroutines serve as wrappers to NCEPLIBS-ip subroutines.  The following table illustrates the mapping:
 
 | grib2io-interp | NCEPLIBS-ip |
 | -------------- | ----------- |
