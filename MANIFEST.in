@@ -6,9 +6,11 @@ include README.md
 include LICENSE
 include create_docs.sh
 include requirements.txt
+include VERSION
 recursive-include docs *
 recursive-include src *
 recursive-include tests *
 global-exclude */__pycache__/*
 global-exclude *.pyc
+global-exclude .DS_Store
 exclude src/grib2io_interp/__config__.py
