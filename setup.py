@@ -5,19 +5,15 @@ import configparser
 import numpy
 import os
 import platform
+import subprocess
 import sys
 
-with open("VERSION","rt") as f:
-    VERSION = f.readline().strip()
+def get_grib2io_version():
+    with open("VERSION","rt") as f:
+        ver = f.readline().strip()
+    return ver
 
-libdirs = []
-incdirs = []
-libraries = ['ip_4']
-
-# ----------------------------------------------------------------------------------------
-# find_library.
-# ----------------------------------------------------------------------------------------
-def find_library(name, dirs=None):
+def find_library(name, dirs=None, static=False):
     _libext_by_platform = {"linux": ".so", "darwin": ".dylib"}
     out = []
 
@@ -34,6 +30,7 @@ def find_library(name, dirs=None):
 
     # For Linux and macOS (Apple Silicon), we have to search ourselves.
     libext = _libext_by_platform[sys.platform]
+    libext = ".a" if static else libext
     if dirs is None:
         if os.environ.get("CONDA_PREFIX"):
             dirs = [os.environ["CONDA_PREFIX"]]
@@ -57,11 +54,34 @@ directories:
     return out[0].absolute().resolve().as_posix()
 
 # ---------------------------------------------------------------------------------------- 
+# Main part of script
+# ---------------------------------------------------------------------------------------- 
+VERSION = get_grib2io_version()
+
+needs_sp = False
+usestaticlibs = False
+libraries = ['ip_4']
+
+incdirs = []
+libdirs = []
+extra_objects = []
+
+# ---------------------------------------------------------------------------------------- 
 # Read setup.cfg
 # ----------------------------------------------------------------------------------------
 setup_cfg = 'setup.cfg'
 config = configparser.ConfigParser()
 config.read(setup_cfg)
+
+# ----------------------------------------------------------------------------------------
+# Check if static library linking is preferred.
+# ----------------------------------------------------------------------------------------
+if os.environ.get('USE_STATIC_LIBS'):
+    val = os.environ.get('USE_STATIC_LIBS')
+    if val not in {'True','False'}:
+        raise ValueError('Environment variable USE_STATIC_LIBS must be \'True\' or \'False\'')
+    usestaticlibs = True if val == 'True' else False
+usestaticlibs = config.get('options', 'use_static_libs', fallback=usestaticlibs)
 
 # ---------------------------------------------------------------------------------------- 
 # Get NCEPLIBS-ip library info.
@@ -81,9 +101,57 @@ else:
 libdirs.append(ip_libdir)
 incdirs.append(ip_incdir)
 
-libdirs = list(set(libdirs))
+# ----------------------------------------------------------------------------------------
+# Check if NCEPLIBS-sp is needed.
+# ----------------------------------------------------------------------------------------
+lib = find_library('ip_4', dirs=libdirs, static=usestaticlibs)
+if usestaticlibs:
+    extra_objects.append(lib)
+    cmd = subprocess.run(['ar','-t',lib], stdout=subprocess.PIPE)
+    symbols = cmd.stdout.decode('utf-8')    
+    if 'splat' in symbols: needs_sp = True
+else:
+    if sys.platform == 'darwin':
+        cmd = subprocess.run(['otool','-L',lib], stdout=subprocess.PIPE)
+    elif sys.platform == 'linux':
+        cmd = subprocess.run(['ldd',lib], stdout=subprocess.PIPE)
+    symbols = cmd.stdout.decode('utf-8')    
+    if 'libsp_4' in symbols: needs_sp = True
+
+# ----------------------------------------------------------------------------------------
+# Get NCEPLIBS-sp library info if needed.
+# ----------------------------------------------------------------------------------------
+if needs_sp:
+    if os.environ.get('SP_DIR'):
+        sp_dir = os.environ.get('SP_DIR')
+        sp_libdir = os.path.dirname(find_library('sp_4', dirs=[sp_dir], static=usestaticlibs))
+        sp_incdir = os.path.join(sp_dir,'include_4')
+    else:
+        sp_dir = config.get('directories','sp_dir',fallback=None)
+        if sp_dir is None:
+            sp_libdir = os.path.dirname(find_library('sp_4'), static=usestaticlibs)
+            sp_incdir = os.path.join(os.path.dirname(sp_libdir),'include_4')
+        else:
+            sp_libdir = os.path.dirname(find_library('sp_4', dirs=[sp_dir], static=usestaticlibs))
+            sp_incdir = os.path.join(os.path.dirname(sp_libdir),'include_4')
+    libdirs.append(sp_libdir)
+    incdirs.append(sp_incdir)
+    if usestaticlibs:
+        extra_objects.append(find_library('sp_4', dirs=[sp_dir], static=usestaticlibs))
+    libraries.append('sp_4')
+
+libraries = [] if usestaticlibs else list(set(libraries))
 incdirs = list(set(incdirs))
 incdirs.append(numpy.get_include())
+libdirs = [] if usestaticlibs else list(set(libdirs))
+extra_objects = list(set(extra_objects)) if usestaticlibs else []
+
+print(f'Use static libs: {usestaticlibs}')
+print(f'Needs NCEPLIBS-sp: {needs_sp}')
+print(f'\t{libraries = }')
+print(f'\t{incdirs = }')
+print(f'\t{libdirs = }')
+print(f'\t{extra_objects = }')
 
 # ---------------------------------------------------------------------------------------- 
 # Define interpolation NumPy extension module.
@@ -95,7 +163,8 @@ interpext = Extension(name = 'grib2io_interp.interpolate',
                       include_dirs = incdirs,
                       library_dirs = libdirs,
                       runtime_library_dirs = libdirs,
-                      libraries = libraries)
+                      libraries = libraries,
+                      extra_objects = extra_objects)
 
 # ----------------------------------------------------------------------------------------
 # Create __config__.py
