@@ -53,9 +53,9 @@ directories:
 """)
     return out[0].absolute().resolve().as_posix()
 
-# ---------------------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------------------
 # Main part of script
-# ---------------------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------------------
 VERSION = get_grib2io_version()
 
 needs_sp = False
@@ -66,7 +66,7 @@ incdirs = []
 libdirs = []
 extra_objects = []
 
-# ---------------------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------------------
 # Read setup.cfg
 # ----------------------------------------------------------------------------------------
 setup_cfg = 'setup.cfg'
@@ -83,9 +83,9 @@ if os.environ.get('USE_STATIC_LIBS'):
     usestaticlibs = True if val == 'True' else False
 usestaticlibs = config.get('options', 'use_static_libs', fallback=usestaticlibs)
 
-# ---------------------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------------------
 # Get NCEPLIBS-ip library info.
-# ---------------------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------------------
 if os.environ.get('IP_DIR'):
     ip_dir = os.environ.get('IP_DIR')
     ip_libdir = os.path.dirname(find_library('ip_4', dirs=[ip_dir]))
@@ -108,15 +108,15 @@ lib = find_library('ip_4', dirs=libdirs, static=usestaticlibs)
 if usestaticlibs:
     extra_objects.append(lib)
     cmd = subprocess.run(['ar','-t',lib], stdout=subprocess.PIPE)
-    symbols = cmd.stdout.decode('utf-8')    
-    if 'splat' in symbols: needs_sp = True
+    cmdout = cmd.stdout.decode('utf-8')
+    if 'splat' not in cmdout: needs_sp = True
 else:
     if sys.platform == 'darwin':
         cmd = subprocess.run(['otool','-L',lib], stdout=subprocess.PIPE)
     elif sys.platform == 'linux':
         cmd = subprocess.run(['ldd',lib], stdout=subprocess.PIPE)
-    symbols = cmd.stdout.decode('utf-8')    
-    if 'libsp_4' in symbols: needs_sp = True
+    cmdout = cmd.stdout.decode('utf-8')
+    if 'libsp_4' in cmdout: needs_sp = True
 
 # ----------------------------------------------------------------------------------------
 # Get NCEPLIBS-sp library info if needed.
@@ -137,7 +137,7 @@ if needs_sp:
     libdirs.append(sp_libdir)
     incdirs.append(sp_incdir)
     if usestaticlibs:
-        extra_objects.append(find_library('sp_4', dirs=[sp_dir], static=usestaticlibs))
+        extra_objects.append(find_library('sp_4', dirs=[sp_libdir], static=usestaticlibs))
     libraries.append('sp_4')
 
 libraries = [] if usestaticlibs else list(set(libraries))
@@ -153,9 +153,9 @@ print(f'\t{incdirs = }')
 print(f'\t{libdirs = }')
 print(f'\t{extra_objects = }')
 
-# ---------------------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------------------
 # Define interpolation NumPy extension module.
-# ---------------------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------------------
 interpext = Extension(name = 'grib2io_interp.interpolate',
                       sources = ['src/interpolate/interpolate.pyf','src/interpolate/interpolate.f90'],
                       extra_f77_compile_args = ['-O3','-fopenmp'],
