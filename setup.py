@@ -129,7 +129,7 @@ if needs_sp:
     else:
         sp_dir = config.get('directories','sp_dir',fallback=None)
         if sp_dir is None:
-            sp_libdir = os.path.dirname(find_library('sp_4'), static=usestaticlibs)
+            sp_libdir = os.path.dirname(find_library('sp_4', static=usestaticlibs))
             sp_incdir = os.path.join(os.path.dirname(sp_libdir),'include_4')
         else:
             sp_libdir = os.path.dirname(find_library('sp_4', dirs=[sp_dir], static=usestaticlibs))
