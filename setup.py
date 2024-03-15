@@ -59,6 +59,7 @@ directories:
 VERSION = get_grib2io_version()
 
 needs_sp = False
+needs_openmp = False
 usestaticlibs = False
 libraries = ['ip_4']
 
@@ -88,7 +89,7 @@ usestaticlibs = config.get('options', 'use_static_libs', fallback=usestaticlibs)
 # ----------------------------------------------------------------------------------------
 if os.environ.get('IP_DIR'):
     ip_dir = os.environ.get('IP_DIR')
-    ip_libdir = os.path.dirname(find_library('ip_4', dirs=[ip_dir]))
+    ip_libdir = os.path.dirname(find_library('ip_4', dirs=[ip_dir], static=usestaticlibs))
     ip_incdir = os.path.join(ip_dir,'include_4')
 else:
     ip_dir = config.get('directories','ip_dir',fallback=None)
@@ -102,15 +103,21 @@ libdirs.append(ip_libdir)
 incdirs.append(ip_incdir)
 
 # ----------------------------------------------------------------------------------------
-# Check if NCEPLIBS-sp is needed.
+# Check for if sp and OpenMP library objects are in the ip library
 # ----------------------------------------------------------------------------------------
-lib = find_library('ip_4', dirs=libdirs, static=usestaticlibs)
+ip_staticlib = find_library('ip_4', dirs=libdirs, static=usestaticlibs)
 if usestaticlibs:
-    extra_objects.append(lib)
-    cmd = subprocess.run(['ar','-t',lib], stdout=subprocess.PIPE)
+    extra_objects.append(ip_staticlib)
+    # Check for sp
+    cmd = subprocess.run(['ar','-t',ip_staticlib], stdout=subprocess.PIPE)
     cmdout = cmd.stdout.decode('utf-8')
     if 'splat' not in cmdout and \
        'sp_mod' not in cmdout: needs_sp = True
+    # Check for OpenMP
+    cmd = subprocess.run(['nm','-C',ip_staticlib], stdout=subprocess.PIPE,
+                         stderr=subprocess.DEVNULL)
+    cmdout = cmd.stdout.decode('utf-8')
+    if 'GOMP' in cmdout: needs_openmp = True
 else:
     if sys.platform == 'darwin':
         cmd = subprocess.run(['otool','-L',lib], stdout=subprocess.PIPE)
@@ -118,6 +125,15 @@ else:
         cmd = subprocess.run(['ldd',lib], stdout=subprocess.PIPE)
     cmdout = cmd.stdout.decode('utf-8')
     if 'libsp_4' in cmdout: needs_sp = True
+
+# ----------------------------------------------------------------------------------------
+# Get OpenMP library info if needed.
+#
+# NOTE: The ip library can be built with support for OpenMP.
+# ----------------------------------------------------------------------------------------
+if needs_openmp:
+    omp_staticlib = find_library('gomp', static=needs_openmp)
+    extra_objects.append(omp_staticlib)
 
 # ----------------------------------------------------------------------------------------
 # Get NCEPLIBS-sp library info if needed.
@@ -146,6 +162,7 @@ libdirs = [] if usestaticlibs else list(set(libdirs))
 extra_objects = list(set(extra_objects)) if usestaticlibs else []
 
 print(f'Use static libs: {usestaticlibs}')
+print(f'Needs OpenMP: {needs_openmp}')
 print(f'Needs NCEPLIBS-sp: {needs_sp}')
 print(f'\t{libraries = }')
 print(f'\t{incdirs = }')
