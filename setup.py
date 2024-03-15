@@ -109,7 +109,8 @@ if usestaticlibs:
     extra_objects.append(lib)
     cmd = subprocess.run(['ar','-t',lib], stdout=subprocess.PIPE)
     cmdout = cmd.stdout.decode('utf-8')
-    if 'splat' not in cmdout: needs_sp = True
+    if 'splat' not in cmdout and \
+       'sp_mod' not in cmdout: needs_sp = True
 else:
     if sys.platform == 'darwin':
         cmd = subprocess.run(['otool','-L',lib], stdout=subprocess.PIPE)
@@ -120,22 +121,20 @@ else:
 
 # ----------------------------------------------------------------------------------------
 # Get NCEPLIBS-sp library info if needed.
+#
+# NOTE: This library does not have include files.
 # ----------------------------------------------------------------------------------------
 if needs_sp:
     if os.environ.get('SP_DIR'):
         sp_dir = os.environ.get('SP_DIR')
         sp_libdir = os.path.dirname(find_library('sp_4', dirs=[sp_dir], static=usestaticlibs))
-        sp_incdir = os.path.join(sp_dir,'include_4')
     else:
         sp_dir = config.get('directories','sp_dir',fallback=None)
         if sp_dir is None:
             sp_libdir = os.path.dirname(find_library('sp_4', static=usestaticlibs))
-            sp_incdir = os.path.join(os.path.dirname(sp_libdir),'include_4')
         else:
             sp_libdir = os.path.dirname(find_library('sp_4', dirs=[sp_dir], static=usestaticlibs))
-            sp_incdir = os.path.join(os.path.dirname(sp_libdir),'include_4')
     libdirs.append(sp_libdir)
-    incdirs.append(sp_incdir)
     if usestaticlibs:
         extra_objects.append(find_library('sp_4', dirs=[sp_libdir], static=usestaticlibs))
     libraries.append('sp_4')
