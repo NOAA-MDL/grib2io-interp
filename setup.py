@@ -60,12 +60,14 @@ VERSION = get_grib2io_version()
 
 needs_sp = False
 needs_openmp = False
+openmp_libname = ''
 usestaticlibs = False
 libraries = ['ip_4']
 
 incdirs = []
 libdirs = []
 extra_objects = []
+ext_modules = []
 
 # ----------------------------------------------------------------------------------------
 # Read setup.cfg
@@ -117,14 +119,33 @@ if usestaticlibs:
     cmd = subprocess.run(['nm','-C',ip_staticlib], stdout=subprocess.PIPE,
                          stderr=subprocess.DEVNULL)
     cmdout = cmd.stdout.decode('utf-8')
-    if 'GOMP' in cmdout: needs_openmp = True
+    if 'GOMP' in cmdout:
+        needs_openmp = True
+        openmp_libname = 'gomp'
+    elif 'kmpc' in cmdout:
+        needs_openmp = True
+        openmp_libname = 'iomp5'
 else:
+    iplib = find_library('ip_4', dirs=libdirs, static=usestaticlibs)
+    # Check for sp
     if sys.platform == 'darwin':
-        cmd = subprocess.run(['otool','-L',lib], stdout=subprocess.PIPE)
+        cmd = subprocess.run(['otool','-L',iplib], stdout=subprocess.PIPE)
     elif sys.platform == 'linux':
-        cmd = subprocess.run(['ldd',lib], stdout=subprocess.PIPE)
+        cmd = subprocess.run(['ldd',iplib], stdout=subprocess.PIPE)
     cmdout = cmd.stdout.decode('utf-8')
     if 'libsp_4' in cmdout: needs_sp = True
+    # Check for OpenMP
+    if sys.platform == 'darwin':
+        cmd = subprocess.run(['otool','-L',iplib], stdout=subprocess.PIPE)
+    elif sys.platform == 'linux':
+        cmd = subprocess.run(['ldd',iplib], stdout=subprocess.PIPE)
+    cmdout = cmd.stdout.decode('utf-8')
+    if 'gomp' in cmdout:
+        needs_openmp = True
+        openmp_libname = 'gomp'
+    elif 'iomp5' in cmdout:
+        needs_openmp = True
+        openmp_libname = 'iomp5'
 
 # ----------------------------------------------------------------------------------------
 # Get OpenMP library info if needed.
@@ -132,8 +153,14 @@ else:
 # NOTE: The ip library can be built with support for OpenMP.
 # ----------------------------------------------------------------------------------------
 if needs_openmp:
-    omp_staticlib = find_library('gomp', static=needs_openmp)
-    extra_objects.append(omp_staticlib)
+    if usestaticlibs:
+        omp_staticlib = find_library(openmp_libname, static=usestaticlibs)
+        extra_objects.append(omp_staticlib)
+    else:
+        omp_libdir = os.path.dirname(find_library(openmp_libname, static=usestaticlibs))
+        #omp_incdir = os.path.join(os.path.dirname(omp_libdir),'include')
+        #incdirs.append(omp_incdir)
+        libdirs.append(omp_libdir)
 
 # ----------------------------------------------------------------------------------------
 # Get NCEPLIBS-sp library info if needed.
@@ -181,6 +208,20 @@ interpext = Extension(name = 'grib2io_interp.interpolate',
                       runtime_library_dirs = libdirs,
                       libraries = libraries,
                       extra_objects = extra_objects)
+ext_modules.append(interpext)
+
+if needs_openmp:
+    ompext = Extension(name = 'grib2io_interp.openmp_handler',
+                       sources = ['src/openmp_handler/openmp_handler.pyf',
+                                  'src/openmp_handler/openmp_handler.f90'],
+                       extra_f77_compile_args = ['-O3','-fopenmp'],
+                       extra_f90_compile_args = ['-O3','-fopenmp'],
+                       include_dirs = incdirs,
+                       library_dirs = libdirs,
+                       runtime_library_dirs = libdirs,
+                       libraries = libraries,
+                       extra_objects = extra_objects)
+    ext_modules.append(ompext)
 
 # ----------------------------------------------------------------------------------------
 # Create __config__.py
@@ -208,6 +249,6 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 # ----------------------------------------------------------------------------------------
 # Run setup
 # ----------------------------------------------------------------------------------------
-setup(ext_modules       = [interpext],
+setup(ext_modules       = ext_modules,
       long_description  = long_description,
       long_description_content_type = 'text/markdown')

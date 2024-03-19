@@ -1,0 +1,19 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+python module openmp_handler ! in 
+    interface  ! in :openmp_handler
+        function get_openmp_threads() result (n) ! in openmp_handler.f90
+            use omp_lib
+            integer :: n
+        end function get_openmp_threads
+        subroutine set_openmp_threads(n) ! in openmp_handler.f90
+            use omp_lib
+            integer intent(in) :: n
+        end subroutine set_openmp_threads
+    end interface 
+end python module openmp_handler
+
+! This file was auto-generated with f2py (version:1.23.2).
+! See:
+! https://web.archive.org/web/20140822061353/http://cens.ioc.ee/projects/f2py2e
