@@ -14,3 +14,8 @@ It is **recommended** that you access these interpolation subroutines via [`grib
 """
 
 from .__config__ import grib2io_interp_version as __version__
+
+try:
+    from .openmp_handler import *
+except(ImportError):
+    pass
