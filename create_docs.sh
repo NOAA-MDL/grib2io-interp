@@ -1,8 +1,7 @@
 #!/bin/sh
-# ---------------------------------------------------------------------------------------- 
-# Uses pdoc (https://github.com/mitmproxy/pdoc)
-# ---------------------------------------------------------------------------------------- 
-sysarch=$(uname -m)
-build_dir=$(find . -name "lib.*${sysarch}*" -type d)
-echo "Building docs from: $build_dir"
-pdoc -o 'docs' $build_dir/grib2io_interp !grib2io_interp.interpolate
+# ----------------------------------------------------------------------------------------
+# Uses real pdoc (https://github.com/mitmproxy/pdoc)
+#
+# pip install pdoc
+# ----------------------------------------------------------------------------------------
+pdoc --docformat numpy -o 'docs' ./src/grib2io_interp
