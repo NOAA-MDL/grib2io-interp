@@ -41,7 +41,8 @@ Despite this package being a component for grib2io, grib2io is not a formal depe
 
 ## NCEPLIBS-ip
 
-**IMPORTANT:** Beginning with version 5.0.0 of the NCEP Interpolation [(NCEPLIBS-ip)](https://github.om/NOAA-EMC/NCEPLIBS-ip) library, the NCEP Spectral Interpolation [(NCEPLIBS-sp)](https://github.com/NOAA-EMC/NCEPLIBS-sp) library is now integrated into NCEPLIBS-ip.
+> [!NOTE]
+> Beginning with version 5.0.0 of the NCEP Interpolation [(NCEPLIBS-ip)](https://github.om/NOAA-EMC/NCEPLIBS-ip) library, the NCEP Spectral Interpolation [(NCEPLIBS-sp)](https://github.com/NOAA-EMC/NCEPLIBS-sp) library is now integrated into NCEPLIBS-ip.
 
 ## Installation
 If NCEPLIBS-ip has been installed to custom location (i.e. not default paths), then define the root of the installation via environment variable `IP_DIR`.
@@ -65,9 +66,18 @@ To build with Intel compilers, perform the following
 pip install . --config-settings="--build-option=build --fcompiler=intelem"
 ```
 
+> [!NOTE]
+> ### Building with static libraries
+> The default behavior for building grib2io-interp is to build against shared-object libraries.  However, in production environments, it is beneficial to build against static library files.  grib2io-interp (v1.2.0+) allows for this type of build configuration.  To build against static library files, set the environment variable, `USE_STATIC_LIBS="True"` before your build/install command.  For example,
+> 
+>```shell
+>export USE_STATIC_LIBS="True"
+>pip install . --config-settings="--build-option=build ==fcompiler=gnu95"
+>```
+
 ## Development
 
-The intention of grib2io-interp is to become the offical Python interface for the NCEP g2c library.  Therefore, the development evolution of grib2io will mainly focus on how best to serve that purpose and its primary user's -- mainly meteorologists, physical scientists, and software developers supporting the missions within NOAA's National Weather Service (NWS) and National Centers for Environmental Prediction (NCEP), and other NOAA organizations.
+The development evolution of grib2io-interp will mainly focus on how best to serve that purpose and its primary user's -- mainly meteorologists, physical scientists, and software developers supporting the missions within NOAA's National Weather Service (NWS) and National Centers for Environmental Prediction (NCEP), and other NOAA organizations.
 
 ## Disclaimer
 
