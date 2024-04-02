@@ -34,7 +34,8 @@
 Despite this package being a component for grib2io, grib2io is not a formal dependency for grib2io-interp.
 
 * [Python](https://python.org) 3.8, 3.9, 3.10, and 3.11
-* [NCEPLIBS-ip](https://github.com/NOAA-EMC/NCEPLIBS-ip) 5.0.0+
+* [NCEPLIBS-ip](https://github.com/NOAA-EMC/NCEPLIBS-ip) 4.1.0+
+* [NCEPLIBS-sp](https://github.com/NOAA-EMC/NCEPLIBS-sp) 2.4.0+ _**(IMPORTANT: required if NCEPLIBS-ip < v5.0.0)**_
 * setuptools 61.0+
 * NumPy 1.22+
 * Fortran Compiler: GNU (gfortran) and Intel (ifort) have been tested.
