@@ -46,7 +46,7 @@ Despite this package being a component for grib2io, grib2io is not a formal depe
 > Beginning with version 5.0.0 of the NCEP Interpolation [(NCEPLIBS-ip)](https://github.om/NOAA-EMC/NCEPLIBS-ip) library, the NCEP Spectral Interpolation [(NCEPLIBS-sp)](https://github.com/NOAA-EMC/NCEPLIBS-sp) library is now integrated into NCEPLIBS-ip.
 
 ## Installation
-If NCEPLIBS-ip has been installed to custom location (i.e. not default paths), then define the root of the installation via environment variable `IP_DIR`.
+If NCEPLIBS-ip has been installed to custom location (i.e. not default paths), then define the root of the installation via environment variable `IP_DIR`. If the NCEPLIBS-ip version is < 5.0.0, then you will need to install NCEPLIBS-sp and if installed to a custom location, then define the root of the installation via environment variable `SP_DIR`.
 ```shell
 pip install grib2io-interp
 ```
