@@ -21,6 +21,7 @@ and `set_openmp_threads()`.
 """
 
 from .__config__ import grib2io_interp_version as __version__
+from .__config__ import has_openmp_support
 
 def get_openmp_threads():
     """
