@@ -16,8 +16,9 @@ OpenMP Support
 NCEPLIBS-ip can be built with support for OpenMP threading. This is also supported in grib2io-interp. The
 F2PY signatures for `interpolate_scalar` and `interpolate_vector` subroutines contain the keyword `threadsafe`
 which unlocks Python's global interpretor lock (gil) and allows for threading. grib2io-interp contains a
-second F2PY extension module, `grib2io_interp.openmp_handler`, that contains functions `get_openmp_threads()`
-and `set_openmp_threads()`.
+second F2PY extension module, `grib2io_interp.openmp_handler`, that allows the user to get and set the number
+of OpenMP threads.  These functions are made public by `grib2io_interp.get_openmp_threads()` and 
+`grib2io_interp.set_openmp_threads()`.
 """
 
 from .__config__ import grib2io_interp_version as __version__
