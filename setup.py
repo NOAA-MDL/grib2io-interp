@@ -146,6 +146,9 @@ else:
     elif 'iomp5' in cmdout:
         needs_openmp = True
         openmp_libname = 'iomp5'
+    elif 'omp' in cmdout:
+        needs_openmp = True
+        openmp_libname = 'omp'
 
 # ----------------------------------------------------------------------------------------
 # Get OpenMP library info if needed.
