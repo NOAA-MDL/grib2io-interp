@@ -151,21 +151,6 @@ else:
         openmp_libname = 'omp'
 
 # ----------------------------------------------------------------------------------------
-# Get OpenMP library info if needed.
-#
-# NOTE: The ip library can be built with support for OpenMP.
-# ----------------------------------------------------------------------------------------
-if needs_openmp:
-    if usestaticlibs:
-        omp_staticlib = find_library(openmp_libname, static=usestaticlibs)
-        extra_objects.append(omp_staticlib)
-    else:
-        omp_libdir = os.path.dirname(find_library(openmp_libname, static=usestaticlibs))
-        #omp_incdir = os.path.join(os.path.dirname(omp_libdir),'include')
-        #incdirs.append(omp_incdir)
-        libdirs.append(omp_libdir)
-
-# ----------------------------------------------------------------------------------------
 # Get NCEPLIBS-sp library info if needed.
 #
 # NOTE: This library does not have include files.
@@ -190,6 +175,17 @@ incdirs = list(set(incdirs))
 incdirs.append(numpy.get_include())
 libdirs = [] if usestaticlibs else list(set(libdirs))
 extra_objects = list(set(extra_objects)) if usestaticlibs else []
+
+# ----------------------------------------------------------------------------------------
+# Get OpenMP library info if needed. Regardless of static or dynamic linking to
+# NCEPLIBS-ip (and sp if needed), add the OpenMP library name to libraries to dynamically
+# link to.
+#
+# NOTE: In the future, we might want to allow the user to control either static or dynamic
+# linking to the OpenMP library.
+# ----------------------------------------------------------------------------------------
+if needs_openmp:
+    libraries.append(openmp_libname)
 
 print(f'Use static libs: {usestaticlibs}')
 print(f'Needs OpenMP: {needs_openmp}')
