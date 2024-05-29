@@ -36,6 +36,7 @@ classifiers = [
 ]
 dependencies = [
   "numpy",
+  "grib2io"
 ] 
 dynamic = ["version"]
 
