@@ -1,13 +1,19 @@
 [build-system]
+build-backend = "mesonpy"
 requires = [
-  "oldest-supported-numpy",
-  "setuptools>=61.0",
+    "meson-python",
+    "setuptools",
+    "setuptools_scm",
+    "numpy>=2.0",
+    "wheel",
+    "ninja"
 ]
-build-backend = "setuptools.build_meta"
 
 [project]
 name = "grib2io-interp"
+dynamic = ["version"]
 description = "Interpolation component for grib2io providing a Python interface to NCEPLIBS-ip"
+readme = "README.md"
 authors = [
   {name = "Eric Engle", email = "eric.engle@noaa.gov"},
 ]
@@ -16,7 +22,6 @@ keywords = [
   "weather", "data-science", "numpy", "meteorology", "weather-data", "atmospheric-science",
   "grib2", "grib2-decoder", "grib2-encoder", "ncep",
 ]
-readme = "README.md"
 license = {text = "MIT"}
 classifiers = [
   "Development Status :: 5 - Production/Stable",
@@ -35,9 +40,8 @@ classifiers = [
   "Operating System :: MacOS",
 ]
 dependencies = [
-  "numpy",
+  "numpy>=1.26",
 ] 
-dynamic = ["version"]
 
 [project.urls]
 Documentation = "https://noaa-mdl.github.io/grib2io-interp"
@@ -49,4 +53,5 @@ packages = ["grib2io_interp"]
 zip-safe = false
 
 [tool.setuptools.dynamic]
-version = {attr = "grib2io_interp.__config__.grib2io_interp_version"}
+readme = {file = "README.md"}
+version = {file = "VERSION"}
