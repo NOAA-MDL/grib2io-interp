@@ -4,7 +4,7 @@ requires = [
     "meson-python",
     "setuptools",
     "setuptools_scm",
-    "numpy>=2.0",
+    "oldest-supported-numpy",
     "wheel",
     "ninja"
 ]
