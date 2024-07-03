@@ -40,7 +40,7 @@ classifiers = [
   "Operating System :: MacOS",
 ]
 dependencies = [
-  "numpy >= 1.26, < 2",
+  "numpy >= 1.22, < 2",
 ] 
 
 [project.urls]
