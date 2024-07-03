@@ -9,6 +9,9 @@ project('grib2io_interp',
                             'warning_level=3',
                             'buildtype=release',
                           ])
+
+fs = import('fs')
+
 fc = meson.get_compiler('fortran')
 cc = meson.get_compiler('c')
 
@@ -45,8 +48,44 @@ prefix = run_command(py,
   ['-c', 'import sys; print(sys.prefix)'],
   check : false
 ).stdout().strip()
-link_lib = cc.find_library('ip_4', static: false, required: true, dirs: prefix / 'lib')
-incdir_ip = prefix / 'include_4'
+
+search_dirs = [
+  prefix,
+  '/usr' / 'local',
+  '/sw',
+  '/opt',
+  '/opt' / 'local',
+  '/opt' / 'homebrew',
+  '/usr',
+]
+
+# Need to constrain this array to only directories that exist.
+# That is what cc.find_library(..., header_include_directories: ip4_inc_dirs, ...) expects.
+ip4_inc_dirs = []
+ip4_inc_dirs_str = []
+foreach d : search_dirs
+  if fs.is_dir(d / 'include_4')
+    ip4_inc_dirs += include_directories(d / 'include_4')
+    ip4_inc_dirs_str += d / 'include_4'
+  endif
+endforeach
+
+# Do that same thing for the lib directories, however, this works fine
+# unfiltered in cc.find_library(..., dirs: lib_dirs, ...)
+lib_dirs = []
+foreach d : search_dirs
+  if fs.is_dir(d / 'lib')
+    lib_dirs += d / 'lib'
+  endif
+endforeach
+
+ip4_link_lib = cc.find_library('ip_4',
+  static: false,
+  required: true,
+  dirs: lib_dirs,
+  has_headers: ['iplib.h'],
+  header_include_directories: ip4_inc_dirs,
+  )
 
 ftn_sources = [
   'src' / 'interpolate' / 'interpolate.f90'
@@ -65,14 +104,14 @@ grib2io_interp_source = custom_target('interpolatemodule',
     '--lower',
   ])
 
-inc_np = include_directories(incdir_numpy, incdir_f2py, incdir_ip)
+inc_np = include_directories(incdir_numpy, incdir_f2py, ip4_inc_dirs_str)
 
 py.extension_module('interpolate',
   ftn_sources,
   fortranobject_c,
   grib2io_interp_source,
   include_directories: inc_np,
-  dependencies : [py_dep, link_lib, quadmath_dep, omp_dep],
+  dependencies : [py_dep, ip4_link_lib, quadmath_dep, omp_dep],
   install : true,
   subdir: 'grib2io_interp'
 )
