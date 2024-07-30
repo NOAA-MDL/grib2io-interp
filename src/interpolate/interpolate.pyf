@@ -57,6 +57,14 @@ python module interpolate ! in
             real dimension(mo),intent(inout),depend(mo) :: srot
             integer intent(out) :: iret
         end subroutine interpolate_vector
+	subroutine set_ncep_post_arakawa_flag(value) ! in :interpolate:interpolate.f90
+            use ip_grid_mod
+            logical intent(in) :: value
+        end subroutine set_ncep_post_arakawa_flag
+        function get_ncep_post_arakawa_flag() result (value) ! in :interpolate:interpolate.f90
+            use ip_grid_mod
+            logical :: value
+        end function get_ncep_post_arakawa_flag
     end interface 
 end python module interpolate
 

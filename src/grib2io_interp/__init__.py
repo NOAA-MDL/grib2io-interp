@@ -19,10 +19,53 @@ which unlocks Python's global interpretor lock (gil) and allows for threading. g
 second F2PY extension module, `grib2io_interp.openmp_handler`, that allows the user to get and set the number
 of OpenMP threads.  These functions are made public by `grib2io_interp.get_openmp_threads()` and 
 `grib2io_interp.set_openmp_threads()`.
+
+NCEP Grid Template 32769
+========================
+
+[NCEPLIBS-ip v5.1.0](https://github.com/NOAA-EMC/NCEPLIBS-ip/releases/tag/v5.1.0) allows for interpolation
+from Rotated Latitude/Longitude Arakawa Grids, specifically grid templates [32768](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp3-32768.shtml)
+and [32769](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_temp3-32769.shtml). In order to interpolate
+from this grid, the `ncep_post_arakawa` logical scalar in the ip::ip_grid_mod needs to be set to `.true.`. In grib2io_interp,
+we have an interface to set this flag with `grib2io_interp.set_ncep_post_arakawa_flag()`. Note that is is only
+necessary for template 32769.
 """
 
 from .__config__ import grib2io_interp_version as __version__
 from .__config__ import has_openmp_support
+
+def set_ncep_post_arakawa_flag(flag: bool):
+    """
+    Set the value of the ncep_post_arakawa logical scalar from
+    ip::ip_grid_mod.
+
+    Parameters
+    ----------
+    flag
+        Set to `True` or `False` to use the NCEP post method for
+        Arakawa grids.
+    """
+    try:
+        from . import interpolate
+        interpolate.set_ncep_post_arakawa_flag(flag)
+    except(ImportError):
+        pass
+
+def get_ncep_post_arakawa_flag():
+    """
+    Get the value of the ncep_post_arakawa logical scalar from
+    ip::ip_grid_mod.
+
+    Returns
+    -------
+    bool
+    """
+    try:
+        from . import interpolate
+        value = interpolate.get_ncep_post_arakawa_flag()
+        return True if value == 1 else False
+    except(ImportError):
+        pass
 
 def get_openmp_threads():
     """
