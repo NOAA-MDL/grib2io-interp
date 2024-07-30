@@ -49,11 +49,15 @@ Despite this package being a component for grib2io, grib2io is not a formal depe
 > Beginning with NCEPLIBS-ip v5.1.0, you can now interpolate from Rotated Lat/Lon Arakawa B and E Grids (Grid Definition Template numbers 32768 and 32769).
 
 ## Installation
+
+### pip
 If NCEPLIBS-ip has been installed to custom location (i.e. not default paths), then define the root of the installation via environment variable `IP_DIR`. If the NCEPLIBS-ip version is < 5.0.0, then you will need to install NCEPLIBS-sp and if installed to a custom location, then define the root of the installation via environment variable `SP_DIR`.
 ```shell
 pip install grib2io-interp
 ```
 
+### conda
+All required libraries are available in conda-forge.
 ```shell
 conda install -c conda-forge grib2io-interp
 ```
