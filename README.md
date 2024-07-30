@@ -35,20 +35,27 @@ Despite this package being a component for grib2io, grib2io is not a formal depe
 
 * [Python](https://python.org) 3.8, 3.9, 3.10, and 3.11
 * [NCEPLIBS-ip](https://github.com/NOAA-EMC/NCEPLIBS-ip) 4.1.0+
-* [NCEPLIBS-sp](https://github.com/NOAA-EMC/NCEPLIBS-sp) 2.4.0+ _**(IMPORTANT: required if NCEPLIBS-ip < v5.0.0)**_
+* [NCEPLIBS-sp](https://github.com/NOAA-EMC/NCEPLIBS-sp) 2.5.0+ _**(IMPORTANT: required if NCEPLIBS-ip < v5.0.0)**_
 * setuptools 61.0+
-* NumPy 1.22+
+* NumPy 1.22+ _**(NumPy v2.x not supported at this time)**_
 * Fortran Compiler: GNU (gfortran) and Intel (ifort) have been tested.
 
 ## NCEPLIBS-ip
 
 > [!NOTE]
-> Beginning with version 5.0.0 of the NCEP Interpolation [(NCEPLIBS-ip)](https://github.om/NOAA-EMC/NCEPLIBS-ip) library, the NCEP Spectral Interpolation [(NCEPLIBS-sp)](https://github.com/NOAA-EMC/NCEPLIBS-sp) library is now integrated into NCEPLIBS-ip.
+> Beginning with NCEPLIBS-ip v5.0.0, the NCEP Spectral Interpolation [(NCEPLIBS-sp)](https://github.com/NOAA-EMC/NCEPLIBS-sp) library is now integrated into NCEPLIBS-ip.
+
+> [!NOTE]
+> Beginning with NCEPLIBS-ip v5.1.0, you can now interpolate from Rotated Lat/Lon Arakawa B and E Grids (Grid Definition Template numbers 32768 and 32769).
 
 ## Installation
 If NCEPLIBS-ip has been installed to custom location (i.e. not default paths), then define the root of the installation via environment variable `IP_DIR`. If the NCEPLIBS-ip version is < 5.0.0, then you will need to install NCEPLIBS-sp and if installed to a custom location, then define the root of the installation via environment variable `SP_DIR`.
 ```shell
 pip install grib2io-interp
+```
+
+```shell
+conda install -c conda-forge grib2io-interp
 ```
 
 ## Build and Install from Source
