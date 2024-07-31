@@ -38,11 +38,10 @@ def find_library(name, dirs=None, static=False):
     libext = _libext_by_platform[sys.platform]
     libext = ".a" if static else libext
     if dirs is None:
-        print(os.environ["CONDA_PREFIX"])
         if 'CONDA_PREFIX' in os.environ:
             dirs = [os.environ["CONDA_PREFIX"]]
-            if sys.platform == "darwin":
-                libext = ".so" # If in conda and macos, then use ".so"
+            #if sys.platform == "darwin":
+            #    libext = ".so" # If in conda and macos, then use ".so"
         else:
             dirs = ["/usr/local", "/sw", "/opt", "/opt/local", "/opt/homebrew", "/usr"]
     if os.environ.get("LD_LIBRARY_PATH"):
