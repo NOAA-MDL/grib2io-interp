@@ -23,6 +23,7 @@ def find_library(name, dirs=None, static=False):
     # IMPORTANT: The following does not work at this time (Jan. 2024) for macOS on
     # Apple Silicon.
     print(os.name, sys.platform)
+    print(sys.platform, platform.machine())
     if (os.name, sys.platform) != ("posix", "linux"):
         if (sys.platform, platform.machine()) == ("darwin", "arm64"):
             pass
