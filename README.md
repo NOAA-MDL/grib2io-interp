@@ -24,7 +24,8 @@
 | interpolate.interpolate_scalar | ipolates_grib2 |
 | interpolate.interpolate_vector | ipolatev_grib2 |
 
-**NOTE:** It is recommended that you use [`grib2io.interpolate`](https://noaa-mdl.github.io/grib2io/grib2io.html#interpolate) function to access the interpolation subroutines provided by grib2io-interp.
+> [!IMPORTANT]
+> It is recommended that you use [`grib2io.interpolate`](https://noaa-mdl.github.io/grib2io/grib2io.html#interpolate) function to access the interpolation subroutines provided by grib2io-interp.
 
 ## Documentation
 [NOAA-MDL/grib2io-interp](https://noaa-mdl.github.io/grib2io-interp/grib2io-interp.html)
