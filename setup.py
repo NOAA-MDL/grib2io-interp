@@ -34,7 +34,7 @@ def find_library(name, dirs=None, static=False):
     libext = ".a" if static else libext
     if dirs is None:
         print(os.environ["CONDA_PREFIX"])
-        if 'CONDA_PREFIX' in os.environ["CONDA_PREFIX"]:
+        if 'CONDA_PREFIX' in os.environ:
             dirs = [os.environ["CONDA_PREFIX"]]
             if sys.platform == "darwin":
                 libext = ".so" # If in conda and macos, then use ".so"
