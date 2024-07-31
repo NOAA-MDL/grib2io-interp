@@ -20,7 +20,7 @@ jobs:
     - uses: actions/checkout@v4	
 
     - name: Set up Python (Conda)
-    - uses: conda-incubator/setup-miniconda@v3
+      uses: conda-incubator/setup-miniconda@v3
       with:
         auto-update-conda: true
         channels: conda-forge
