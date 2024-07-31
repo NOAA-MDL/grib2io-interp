@@ -29,12 +29,14 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Intended Audience :: Science/Research",
   "License :: OSI Approved",
+  "Topic :: Scientific/Engineering :: Atmospheric Science",
   "Topic :: Software Development :: Libraries :: Python Modules",
   "Operating System :: POSIX",
   "Operating System :: MacOS",
 ]
 dependencies = [
   "numpy",
+  "grib2io"
 ] 
 dynamic = ["version"]
 
