@@ -22,6 +22,7 @@ def find_library(name, dirs=None, static=False):
     #
     # IMPORTANT: The following does not work at this time (Jan. 2024) for macOS on
     # Apple Silicon.
+    print(os.name, sys.platform)
     if (os.name, sys.platform) != ("posix", "linux"):
         if (sys.platform, platform.machine()) == ("darwin", "arm64"):
             pass
@@ -32,7 +33,8 @@ def find_library(name, dirs=None, static=False):
     libext = _libext_by_platform[sys.platform]
     libext = ".a" if static else libext
     if dirs is None:
-        if os.environ.get("CONDA_PREFIX"):
+        print(os.environ["CONDA_PREFIX"])
+        if 'CONDA_PREFIX' in os.environ["CONDA_PREFIX"]:
             dirs = [os.environ["CONDA_PREFIX"]]
             if sys.platform == "darwin":
                 libext = ".so" # If in conda and macos, then use ".so"

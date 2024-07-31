@@ -25,7 +25,7 @@ jobs:
         auto-update-conda: true
         channels: conda-forge
         python-version: ${{ matrix.python-version }}
-        auto-active-base: true
+        auto-activate-base: true
         activate-environment: test
 
     - name: Install conda dependencies
