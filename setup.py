@@ -29,6 +29,10 @@ def find_library(name, dirs=None, static=False):
         else:
             out.append(ctypes_find_library(name))
 
+    stuff = out.append(ctypes_find_library(name))
+    print(f'{stuff = }')
+    print(f'{out = }')
+
     # For Linux and macOS (Apple Silicon), we have to search ourselves.
     libext = _libext_by_platform[sys.platform]
     libext = ".a" if static else libext
