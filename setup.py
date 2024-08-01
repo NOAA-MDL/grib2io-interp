@@ -47,6 +47,77 @@ directories:
 """)
     return out[0].absolute().resolve().as_posix()
 
+def run_ar_command(filename):
+    cmd = subprocess.run(['ar','-t',filename],
+                         stdout=subprocess.PIPE)
+    cmdout = cmd.stdout.decode('utf-8')
+    return cmdout
+
+def run_nm_command(filename):
+    cmd = subprocess.run(['nm','-C',filename],
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.DEVNULL)
+    cmdout = cmd.stdout.decode('utf-8')
+    return cmdout
+
+def run_ldd_command(filename):
+    cmd = subprocess.run(['ldd',filename],
+                         stdout=subprocess.PIPE)
+    cmdout = cmd.stdout.decode('utf-8')
+    return cmdout
+
+def run_otool_command(filename):
+    cmd = subprocess.run(['otool','-L',filename],
+                         stdout=subprocess.PIPE)
+    cmdout = cmd.stdout.decode('utf-8')
+    return cmdout
+
+def check_for_openmp(ip_lib, static_lib=False):
+    check = False
+    info = ""
+    libname = ""
+    if static_lib:
+        if sys.platform in {'darwin','linux'}:
+            info = run_nm_command(ip_lib)
+            if 'GOMP' in info:
+                check = True
+                libname = 'gomp'
+            elif 'kmpc' in info:
+                check = True
+                libname = 'iomp5'
+    else:
+        if sys.platform == 'darwin':
+            info = run_otool_command(ip_lib)
+        elif sys.platform == 'linux':
+            info = run_ldd_command(ip_lib)
+            if 'gomp' in info:
+                check = True
+                libname = 'gomp'
+            elif 'iomp5' in info:
+                check = True
+                libname = 'iomp5'
+            elif 'omp' in info:
+                check = True
+                libname = 'omp'
+    return check, libname
+
+def check_for_sp(ip_lib, static_lib=False):
+    check = False
+    info = ""
+    if static_lib:
+        if sys.platform in {'darwin','linux'}:
+            info = run_ar_command(ip_lib)
+            if 'splat' not in info and \
+               'sp_mod' not in info: check = True
+    else:
+        if sys.platform == 'darwin':
+            info = run_otool_command(ip_lib)
+        elif sys.platform == 'linux':
+            info = run_ldd_command(ip_lib)
+        if 'libsp_4' in info: check=True
+    return check 
+         
+
 # ----------------------------------------------------------------------------------------
 # Main part of script
 # ----------------------------------------------------------------------------------------
@@ -104,45 +175,12 @@ incdirs.append(ip_incdir)
 ip_staticlib = find_library('ip_4', dirs=libdirs, static=use_static_libs)
 if use_static_libs:
     extra_objects.append(ip_staticlib)
-    # Check for sp
-    cmd = subprocess.run(['ar','-t',ip_staticlib], stdout=subprocess.PIPE)
-    cmdout = cmd.stdout.decode('utf-8')
-    if 'splat' not in cmdout and \
-       'sp_mod' not in cmdout: needs_sp = True
-    # Check for OpenMP
-    cmd = subprocess.run(['nm','-C',ip_staticlib], stdout=subprocess.PIPE,
-                         stderr=subprocess.DEVNULL)
-    cmdout = cmd.stdout.decode('utf-8')
-    if 'GOMP' in cmdout:
-        needs_openmp = True
-        openmp_libname = 'gomp'
-    elif 'kmpc' in cmdout:
-        needs_openmp = True
-        openmp_libname = 'iomp5'
+    needs_sp = check_for_sp(ip_staticlib)
+    needs_openmp, openmp_libname = check_for_openmp(ip_staticlib)
 else:
     iplib = find_library('ip_4', dirs=libdirs, static=use_static_libs)
-    # Check for sp
-    if sys.platform == 'darwin':
-        cmd = subprocess.run(['otool','-L',iplib], stdout=subprocess.PIPE)
-    elif sys.platform == 'linux':
-        cmd = subprocess.run(['ldd',iplib], stdout=subprocess.PIPE)
-    cmdout = cmd.stdout.decode('utf-8')
-    if 'libsp_4' in cmdout: needs_sp = True
-    # Check for OpenMP
-    if sys.platform == 'darwin':
-        cmd = subprocess.run(['otool','-L',iplib], stdout=subprocess.PIPE)
-    elif sys.platform == 'linux':
-        cmd = subprocess.run(['ldd',iplib], stdout=subprocess.PIPE)
-    cmdout = cmd.stdout.decode('utf-8')
-    if 'gomp' in cmdout:
-        needs_openmp = True
-        openmp_libname = 'gomp'
-    elif 'iomp5' in cmdout:
-        needs_openmp = True
-        openmp_libname = 'iomp5'
-    elif 'omp' in cmdout:
-        needs_openmp = True
-        openmp_libname = 'omp'
+    needs_sp = check_for_sp(iplib)
+    needs_openmp, openmp_libname = check_for_openmp(iplib)
 
 # ----------------------------------------------------------------------------------------
 # Get NCEPLIBS-sp library info if needed.
