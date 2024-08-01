@@ -8,31 +8,27 @@ import platform
 import subprocess
 import sys
 
-def get_grib2io_version():
+def get_version():
+    """Get version string"""
     with open("VERSION","rt") as f:
         ver = f.readline().strip()
     return ver
 
 def find_library(name, dirs=None, static=False):
-    _libext_by_platform = {"linux": ".so", "darwin": ".dylib"}
+    """Find library"""
+    _libext_by_platform = {"linux": ".so", "darwin": ".dylib", "win32": ".dll"}
     out = []
 
     # According to the ctypes documentation Mac and Windows ctypes_find_library
     # returns the full path.
-    #
-    # IMPORTANT: The following does not work at this time (Jan. 2024) for macOS on
-    # Apple Silicon.
     if (os.name, sys.platform) != ("posix", "linux"):
-        if (sys.platform, platform.machine()) == ("darwin", "arm64"):
-            pass
-        else:
-            out.append(ctypes_find_library(name))
+        out.append(ctypes_find_library(name))
 
     # For Linux and macOS (Apple Silicon), we have to search ourselves.
     libext = _libext_by_platform[sys.platform]
     libext = ".a" if static else libext
     if dirs is None:
-        if os.environ.get("CONDA_PREFIX"):
+        if 'CONDA_PREFIX' in os.environ:
             dirs = [os.environ["CONDA_PREFIX"]]
         else:
             dirs = ["/usr/local", "/sw", "/opt", "/opt/local", "/opt/homebrew", "/usr"]
@@ -53,15 +49,91 @@ directories:
 """)
     return out[0].absolute().resolve().as_posix()
 
+def run_ar_command(filename):
+    """Run the ar command"""
+    cmd = subprocess.run(['ar','-t',filename],
+                         stdout=subprocess.PIPE)
+    cmdout = cmd.stdout.decode('utf-8')
+    return cmdout
+
+def run_nm_command(filename):
+    """Run the nm command"""
+    cmd = subprocess.run(['nm','-C',filename],
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.DEVNULL)
+    cmdout = cmd.stdout.decode('utf-8')
+    return cmdout
+
+def run_ldd_command(filename):
+    """Run the ldd command"""
+    cmd = subprocess.run(['ldd',filename],
+                         stdout=subprocess.PIPE)
+    cmdout = cmd.stdout.decode('utf-8')
+    return cmdout
+
+def run_otool_command(filename):
+    """Run the otool command"""
+    cmd = subprocess.run(['otool','-L',filename],
+                         stdout=subprocess.PIPE)
+    cmdout = cmd.stdout.decode('utf-8')
+    return cmdout
+
+def check_for_openmp(ip_lib, static_lib=False):
+    """Check for OpenMP"""
+    check = False
+    info = ""
+    libname = ""
+    if static_lib:
+        if sys.platform in {'darwin','linux'}:
+            info = run_nm_command(ip_lib)
+            if 'GOMP' in info:
+                check = True
+                libname = 'gomp'
+            elif 'kmpc' in info:
+                check = True
+                libname = 'iomp5'
+    else:
+        if sys.platform == 'darwin':
+            info = run_otool_command(ip_lib)
+        elif sys.platform == 'linux':
+            info = run_ldd_command(ip_lib)
+            if 'gomp' in info:
+                check = True
+                libname = 'gomp'
+            elif 'iomp5' in info:
+                check = True
+                libname = 'iomp5'
+            elif 'omp' in info:
+                check = True
+                libname = 'omp'
+    return check, libname
+
+def check_for_sp(ip_lib, static_lib=False):
+    """Check for NCEPLIBS-sp"""
+    check = False
+    info = ""
+    if static_lib:
+        if sys.platform in {'darwin','linux'}:
+            info = run_ar_command(ip_lib)
+            if 'splat' not in info and \
+               'sp_mod' not in info: check = True
+    else:
+        if sys.platform == 'darwin':
+            info = run_otool_command(ip_lib)
+        elif sys.platform == 'linux':
+            info = run_ldd_command(ip_lib)
+        if 'libsp_4' in info: check=True
+    return check 
+         
 # ----------------------------------------------------------------------------------------
 # Main part of script
 # ----------------------------------------------------------------------------------------
-VERSION = get_grib2io_version()
+VERSION = get_version()
 
 needs_sp = False
 needs_openmp = False
 openmp_libname = ''
-usestaticlibs = False
+use_static_libs = False
 libraries = ['ip_4']
 
 incdirs = []
@@ -83,15 +155,15 @@ if os.environ.get('USE_STATIC_LIBS'):
     val = os.environ.get('USE_STATIC_LIBS')
     if val not in {'True','False'}:
         raise ValueError('Environment variable USE_STATIC_LIBS must be \'True\' or \'False\'')
-    usestaticlibs = True if val == 'True' else False
-usestaticlibs = config.get('options', 'use_static_libs', fallback=usestaticlibs)
+    use_static_libs = True if val == 'True' else False
+use_static_libs = config.get('options', 'use_static_libs', fallback=use_static_libs)
 
 # ----------------------------------------------------------------------------------------
 # Get NCEPLIBS-ip library info.
 # ----------------------------------------------------------------------------------------
 if os.environ.get('IP_DIR'):
     ip_dir = os.environ.get('IP_DIR')
-    ip_libdir = os.path.dirname(find_library('ip_4', dirs=[ip_dir], static=usestaticlibs))
+    ip_libdir = os.path.dirname(find_library('ip_4', dirs=[ip_dir], static=use_static_libs))
     ip_incdir = os.path.join(ip_dir,'include_4')
 else:
     ip_dir = config.get('directories','ip_dir',fallback=None)
@@ -107,48 +179,15 @@ incdirs.append(ip_incdir)
 # ----------------------------------------------------------------------------------------
 # Check for if sp and OpenMP library objects are in the ip library
 # ----------------------------------------------------------------------------------------
-ip_staticlib = find_library('ip_4', dirs=libdirs, static=usestaticlibs)
-if usestaticlibs:
+ip_staticlib = find_library('ip_4', dirs=libdirs, static=use_static_libs)
+if use_static_libs:
     extra_objects.append(ip_staticlib)
-    # Check for sp
-    cmd = subprocess.run(['ar','-t',ip_staticlib], stdout=subprocess.PIPE)
-    cmdout = cmd.stdout.decode('utf-8')
-    if 'splat' not in cmdout and \
-       'sp_mod' not in cmdout: needs_sp = True
-    # Check for OpenMP
-    cmd = subprocess.run(['nm','-C',ip_staticlib], stdout=subprocess.PIPE,
-                         stderr=subprocess.DEVNULL)
-    cmdout = cmd.stdout.decode('utf-8')
-    if 'GOMP' in cmdout:
-        needs_openmp = True
-        openmp_libname = 'gomp'
-    elif 'kmpc' in cmdout:
-        needs_openmp = True
-        openmp_libname = 'iomp5'
+    needs_sp = check_for_sp(ip_staticlib)
+    needs_openmp, openmp_libname = check_for_openmp(ip_staticlib)
 else:
-    iplib = find_library('ip_4', dirs=libdirs, static=usestaticlibs)
-    # Check for sp
-    if sys.platform == 'darwin':
-        cmd = subprocess.run(['otool','-L',iplib], stdout=subprocess.PIPE)
-    elif sys.platform == 'linux':
-        cmd = subprocess.run(['ldd',iplib], stdout=subprocess.PIPE)
-    cmdout = cmd.stdout.decode('utf-8')
-    if 'libsp_4' in cmdout: needs_sp = True
-    # Check for OpenMP
-    if sys.platform == 'darwin':
-        cmd = subprocess.run(['otool','-L',iplib], stdout=subprocess.PIPE)
-    elif sys.platform == 'linux':
-        cmd = subprocess.run(['ldd',iplib], stdout=subprocess.PIPE)
-    cmdout = cmd.stdout.decode('utf-8')
-    if 'gomp' in cmdout:
-        needs_openmp = True
-        openmp_libname = 'gomp'
-    elif 'iomp5' in cmdout:
-        needs_openmp = True
-        openmp_libname = 'iomp5'
-    elif 'omp' in cmdout:
-        needs_openmp = True
-        openmp_libname = 'omp'
+    iplib = find_library('ip_4', dirs=libdirs, static=use_static_libs)
+    needs_sp = check_for_sp(iplib)
+    needs_openmp, openmp_libname = check_for_openmp(iplib)
 
 # ----------------------------------------------------------------------------------------
 # Get NCEPLIBS-sp library info if needed.
@@ -158,23 +197,23 @@ else:
 if needs_sp:
     if os.environ.get('SP_DIR'):
         sp_dir = os.environ.get('SP_DIR')
-        sp_libdir = os.path.dirname(find_library('sp_4', dirs=[sp_dir], static=usestaticlibs))
+        sp_libdir = os.path.dirname(find_library('sp_4', dirs=[sp_dir], static=use_static_libs))
     else:
         sp_dir = config.get('directories','sp_dir',fallback=None)
         if sp_dir is None:
-            sp_libdir = os.path.dirname(find_library('sp_4', static=usestaticlibs))
+            sp_libdir = os.path.dirname(find_library('sp_4', static=use_static_libs))
         else:
-            sp_libdir = os.path.dirname(find_library('sp_4', dirs=[sp_dir], static=usestaticlibs))
+            sp_libdir = os.path.dirname(find_library('sp_4', dirs=[sp_dir], static=use_static_libs))
     libdirs.append(sp_libdir)
-    if usestaticlibs:
-        extra_objects.append(find_library('sp_4', dirs=[sp_libdir], static=usestaticlibs))
+    if use_static_libs:
+        extra_objects.append(find_library('sp_4', dirs=[sp_libdir], static=use_static_libs))
     libraries.append('sp_4')
 
-libraries = [] if usestaticlibs else list(set(libraries))
+libraries = [] if use_static_libs else list(set(libraries))
 incdirs = list(set(incdirs))
 incdirs.append(numpy.get_include())
-libdirs = [] if usestaticlibs else list(set(libdirs))
-extra_objects = list(set(extra_objects)) if usestaticlibs else []
+libdirs = [] if use_static_libs else list(set(libdirs))
+extra_objects = list(set(extra_objects)) if use_static_libs else []
 
 # ----------------------------------------------------------------------------------------
 # Get OpenMP library info if needed. Regardless of static or dynamic linking to
@@ -187,7 +226,7 @@ extra_objects = list(set(extra_objects)) if usestaticlibs else []
 if needs_openmp:
     libraries.append(openmp_libname)
 
-print(f'Use static libs: {usestaticlibs}')
+print(f'Use static libs: {use_static_libs}')
 print(f'Needs OpenMP: {needs_openmp}')
 print(f'Needs NCEPLIBS-sp: {needs_sp}')
 print(f'\t{libraries = }')
