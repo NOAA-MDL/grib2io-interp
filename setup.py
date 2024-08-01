@@ -19,20 +19,8 @@ def find_library(name, dirs=None, static=False):
 
     # According to the ctypes documentation Mac and Windows ctypes_find_library
     # returns the full path.
-    #
-    # IMPORTANT: The following does not work at this time (Jan. 2024) for macOS on
-    # Apple Silicon.
-    print(f'{out = }')
-    print(os.name, sys.platform)
-    print(sys.platform, platform.machine())
     if (os.name, sys.platform) != ("posix", "linux"):
         out.append(ctypes_find_library(name))
-        #if (sys.platform, platform.machine()) == ("darwin", "arm64"):
-        #    pass
-        #else:
-        #    out.append(ctypes_find_library(name))
-
-    print(f'{out = }')
 
     # For Linux and macOS (Apple Silicon), we have to search ourselves.
     libext = _libext_by_platform[sys.platform]
@@ -40,8 +28,6 @@ def find_library(name, dirs=None, static=False):
     if dirs is None:
         if 'CONDA_PREFIX' in os.environ:
             dirs = [os.environ["CONDA_PREFIX"]]
-            #if sys.platform == "darwin":
-            #    libext = ".so" # If in conda and macos, then use ".so"
         else:
             dirs = ["/usr/local", "/sw", "/opt", "/opt/local", "/opt/homebrew", "/usr"]
     if os.environ.get("LD_LIBRARY_PATH"):
