@@ -9,11 +9,13 @@ import subprocess
 import sys
 
 def get_version():
+    """Get version string"""
     with open("VERSION","rt") as f:
         ver = f.readline().strip()
     return ver
 
 def find_library(name, dirs=None, static=False):
+    """Find library"""
     _libext_by_platform = {"linux": ".so", "darwin": ".dylib", "win32": ".dll"}
     out = []
 
@@ -48,12 +50,14 @@ directories:
     return out[0].absolute().resolve().as_posix()
 
 def run_ar_command(filename):
+    """Run the ar command"""
     cmd = subprocess.run(['ar','-t',filename],
                          stdout=subprocess.PIPE)
     cmdout = cmd.stdout.decode('utf-8')
     return cmdout
 
 def run_nm_command(filename):
+    """Run the nm command"""
     cmd = subprocess.run(['nm','-C',filename],
                          stdout=subprocess.PIPE,
                          stderr=subprocess.DEVNULL)
@@ -61,18 +65,21 @@ def run_nm_command(filename):
     return cmdout
 
 def run_ldd_command(filename):
+    """Run the ldd command"""
     cmd = subprocess.run(['ldd',filename],
                          stdout=subprocess.PIPE)
     cmdout = cmd.stdout.decode('utf-8')
     return cmdout
 
 def run_otool_command(filename):
+    """Run the otool command"""
     cmd = subprocess.run(['otool','-L',filename],
                          stdout=subprocess.PIPE)
     cmdout = cmd.stdout.decode('utf-8')
     return cmdout
 
 def check_for_openmp(ip_lib, static_lib=False):
+    """Check for OpenMP"""
     check = False
     info = ""
     libname = ""
@@ -102,6 +109,7 @@ def check_for_openmp(ip_lib, static_lib=False):
     return check, libname
 
 def check_for_sp(ip_lib, static_lib=False):
+    """Check for NCEPLIBS-sp"""
     check = False
     info = ""
     if static_lib:
@@ -117,7 +125,6 @@ def check_for_sp(ip_lib, static_lib=False):
         if 'libsp_4' in info: check=True
     return check 
          
-
 # ----------------------------------------------------------------------------------------
 # Main part of script
 # ----------------------------------------------------------------------------------------
