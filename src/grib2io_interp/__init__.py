@@ -48,6 +48,13 @@ def set_ncep_post_arakawa_flag(flag: bool):
     try:
         from . import interpolate
         interpolate.set_ncep_post_arakawa_flag(flag)
+    except(AttributeError):
+        raise AttributeError(f"""
+
+set_ncep_post_arakawa_flag() is available when grib2io-interp
+has been built with NCEPLIBS-ip v5.1.0+.
+
+""")
     except(ImportError):
         pass
 
@@ -64,6 +71,13 @@ def get_ncep_post_arakawa_flag():
         from . import interpolate
         value = interpolate.get_ncep_post_arakawa_flag()
         return True if value == 1 else False
+    except(AttributeError):
+        raise AttributeError(f"""
+
+get_ncep_post_arakawa_flag() is available when grib2io-interp
+has been built with NCEPLIBS-ip v5.1.0+.
+
+""")
     except(ImportError):
         pass
 
