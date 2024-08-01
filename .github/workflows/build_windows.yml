@@ -8,33 +8,31 @@ jobs:
     name: Python (${{ matrix.python-version }})
     runs-on: windows-latest
 
-    defaults:
-      run:
-        shell: bash -el {0}
-
     strategy:
       matrix:
         python-version: ["3.8","3.9","3.10","3.11"]
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: actions/checkout@v4
+
+    - name: Set up Python (Conda)
+      uses: conda-incubator/setup-miniconda@v3
       with:
         auto-update-conda: true
         channels: conda-forge
         python-version: ${{ matrix.python-version }}
+        auto-activate-base: true
+        activate-environment: test
 
-    - name: Install dependencies
+    - name: Install conda dependencies
       run: |
-        conda install c-compiler m2w64-gcc-fortran m2w64-gcc-libs nceplibs-ip ninja numpy pip setuptools
+        conda install c-compiler m2w64-gcc-fortran m2w64-gcc-libs nceplibs-g2c nceplibs-ip ninja numpy pip setuptools
+
     - name: Install with pip
       run: |
         pip install .
+
     - name: Test with pytest
       run: |
-        conda install pytest
+        python --version
         #pytest
