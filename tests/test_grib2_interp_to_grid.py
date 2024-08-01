@@ -2,6 +2,7 @@ import pytest
 import numpy as np
 import datetime
 import grib2io
+import grib2io_interp
 
 # Grid specs to interp to (NBM CONUS 5KM)
 gdtn_nbm = 30
@@ -12,6 +13,8 @@ gdt_nbm = [1, 0, 6371200, 255, 255, 255, 255, 1173, 799, 19229000, 233723400,
 nbm_grid_def = grib2io.Grib2GridDef(gdtn_nbm, gdt_nbm)
 nx = gdt_nbm[7]
 ny = gdt_nbm[8]
+
+print(f'{grib2io_interp.__version__ = }')
 
 def _writer(path,a):
     """
