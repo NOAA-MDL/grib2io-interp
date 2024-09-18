@@ -56,6 +56,12 @@ If NCEPLIBS-ip has been installed to custom location (i.e. not default paths), t
 ```shell
 pip install grib2io-interp
 ```
+> [!IMPORTANT]
+> If the above pip install command fails, try the following:
+
+```shell
+SETUPTOOLS_USE_DISTUTILS=stdlib pip install grib2io-interp
+```
 
 ### conda
 All required libraries are available in conda-forge.
