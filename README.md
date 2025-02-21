@@ -1,3 +1,9 @@
+# IMPORTANT ANNOUNCEMENT
+> [!CAUTION]
+> **grib2io-interp is no longer in active development and the last release will be v1.3.0.**
+> **grib2io v2.4.0 and newer will no longer support grib2io-interp.  Interpolation is now
+> done inside grib2io with a Cython interface to the NCEPLIBS-ip library**
+
 # grib2io-interp: Interpolation Component Package for grib2io
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
